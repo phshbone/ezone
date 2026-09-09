@@ -1,8 +1,8 @@
 const { test, expect } = require('@playwright/test');
 
-async function prep(page) {
+async function prep(page, radiusM = 60.96, angle = 0, locked = true) {
   await page.goto('index.html', { waitUntil: 'domcontentloaded' });
-  await page.evaluate(() => {
+  await page.evaluate(({ radiusM, angle, locked }) => {
     ['agreement-overlay', 'returning-overlay', 'welcome-overlay', 'beta-splash-overlay', 'testing-tips-overlay'].forEach((id) => {
       const el = document.getElementById(id);
       if (el) el.style.display = 'none';
@@ -10,79 +10,113 @@ async function prep(page) {
     document.getElementById('map-wrapper').style.display = 'flex';
     document.getElementById('map-ui').style.display = 'block';
     if (!STATE.mapReady) initMap();
-    STATE.gpsPos = { lat: 40.0, lng: -74.5 };
-    STATE.lockedPos = { lat: 40.0, lng: -74.5 };
-    STATE.arcData = { radiusM: 60.96, radiusPx: 100, openingAngleDeg: 90 };
-    STATE.arcLocked = true;
-    map.setView([40.0, -74.5], 18, { animate: false });
+    STATE.gpsPos = { lat: 40, lng: -74.5 };
+    STATE.lockedPos = { lat: 40, lng: -74.5 };
+    STATE.arcData = { radiusM, openingAngleDeg: angle };
+    STATE.arcLocked = locked;
+    map.setView([40, -74.5], 18, { animate: false });
     drawZone();
-  });
+  }, { radiusM, angle, locked });
 }
 
-test.describe('temporary zone shape comparison toggle', () => {
-  test('270 degrees remains the production default', async ({ page }) => {
-    await prep(page);
-    const state = await page.evaluate(() => ({
-      mode: STATE.zoneShapeMode,
-      active270: document.querySelector('[data-zone-shape="270"]').classList.contains('active'),
-      active180: document.querySelector('[data-zone-shape="180"]').classList.contains('active'),
-      radiusM: STATE.arcData.radiusM,
-      openingAngleDeg: STATE.arcData.openingAngleDeg,
-    }));
-    expect(state.mode).toBe('270');
-    expect(state.active270).toBe(true);
-    expect(state.active180).toBe(false);
-    expect(state.radiusM).toBeCloseTo(60.96, 2);
-    expect(state.openingAngleDeg).toBe(90);
+test.describe('full-circle zone visualization', () => {
+  test('uses one complete circle at the configured radius and entrance', async ({ page }) => {
+    for (const radiusM of [30, 60.96]) {
+      await prep(page, radiusM);
+      const result = await page.evaluate(() => {
+        const svg = document.getElementById('zone-svg');
+        const circle = svg.querySelector('[data-zone-boundary]');
+        const center = map.latLngToContainerPoint([STATE.lockedPos.lat, STATE.lockedPos.lng]);
+        const mpp = 156543.03392 * Math.cos(STATE.lockedPos.lat * Math.PI / 180) / 2 ** map.getZoom();
+        return {
+          count: svg.querySelectorAll('circle').length,
+          tag: circle.tagName,
+          cx: +circle.getAttribute('cx'), cy: +circle.getAttribute('cy'),
+          r: +circle.getAttribute('r'), expectedR: STATE.arcData.radiusM / mpp,
+          center: { x: center.x, y: center.y },
+          visiblePaths: svg.querySelectorAll(':scope > path').length,
+          lines: svg.querySelectorAll('line').length,
+          toggles: document.querySelectorAll('#shape-test-toggle, .shape-test-btn').length,
+          markers: svg.querySelectorAll('marker, [marker-start], [marker-end]').length,
+        };
+      });
+      expect(result.tag).toBe('circle');
+      expect(result.count).toBe(1);
+      expect(result.cx).toBeCloseTo(result.center.x, 6);
+      expect(result.cy).toBeCloseTo(result.center.y, 6);
+      expect(result.r).toBeCloseTo(result.expectedR, 6);
+      expect(result.visiblePaths).toBe(0);
+      expect(result.lines).toBe(1);
+      expect(result.toggles).toBe(0);
+      expect(result.markers).toBe(0);
+    }
   });
 
-  test('180 degrees redraws a semicircle and preserves the same stored radius/orientation', async ({ page }, testInfo) => {
+  test('divider bisects the center perpendicular to the existing drag direction', async ({ page }) => {
     await prep(page);
-    const before = await page.evaluate(() => ({ ...STATE.arcData }));
-    await page.locator('[data-zone-shape="180"]').click();
-    await page.waitForTimeout(100);
+    for (const angle of [-179, -90, 0, 45, 90, 180, 359]) {
+      const result = await page.evaluate((angle) => {
+        STATE.arcData.openingAngleDeg = angle;
+        drawZone();
+        const c = document.querySelector('[data-zone-boundary]');
+        const d = document.querySelector('[data-zone-divider]');
+        const cx = +c.getAttribute('cx'), cy = +c.getAttribute('cy'), r = +c.getAttribute('r');
+        const x1 = +d.getAttribute('x1'), y1 = +d.getAttribute('y1');
+        const x2 = +d.getAttribute('x2'), y2 = +d.getAttribute('y2');
+        return { cx, cy, r, x1, y1, x2, y2,
+          perpendicular: ((x2-x1)*Math.cos(angle*Math.PI/180)+(y2-y1)*Math.sin(angle*Math.PI/180))/(2*r),
+          thin: +d.getAttribute('stroke-width') < +c.getAttribute('stroke-width'),
+          stroke: d.getAttribute('stroke'),
+          orientation: STATE.arcData.openingAngleDeg };
+      }, angle);
+      expect((result.x1 + result.x2) / 2).toBeCloseTo(result.cx, 6);
+      expect((result.y1 + result.y2) / 2).toBeCloseTo(result.cy, 6);
+      expect(Math.hypot(result.x2-result.x1, result.y2-result.y1)).toBeCloseTo(2*result.r, 6);
+      expect(result.perpendicular).toBeCloseTo(0, 6);
+      expect(result.thin).toBe(true);
+      expect(result.stroke).toBe('rgba(180,20,20,0.18)');
+      expect(result.orientation).toBe(angle);
+    }
+  });
 
+  test('circle and divider remain aligned after zooming with a moved GPS position', async ({ page }) => {
+    await prep(page, 60.96, 35);
     const result = await page.evaluate(() => {
-      const svg = document.getElementById('zone-svg');
-      return {
-        mode: STATE.zoneShapeMode,
-        arcData: { ...STATE.arcData },
-        pathCount: svg.querySelectorAll('path').length,
-        lineCount: svg.querySelectorAll('line').length,
-        active180: document.querySelector('[data-zone-shape="180"]').classList.contains('active'),
-        active270: document.querySelector('[data-zone-shape="270"]').classList.contains('active'),
-        pathData: Array.from(svg.querySelectorAll('path')).map((p) => p.getAttribute('d') || ''),
-      };
+      STATE.gpsPos = { lat: 40.001, lng: -74.499 };
+      map.setZoom(19, { animate: false });
+      drawZone();
+      const circle = document.querySelector('[data-zone-boundary]');
+      const p = map.latLngToContainerPoint([STATE.lockedPos.lat, STATE.lockedPos.lng]);
+      return { cx: +circle.getAttribute('cx'), cy: +circle.getAttribute('cy'),
+        x: p.x, y: p.y, radiusM: STATE.arcData.radiusM, angle: STATE.arcData.openingAngleDeg };
     });
-
-    expect(result.mode).toBe('180');
-    expect(result.active180).toBe(true);
-    expect(result.active270).toBe(false);
-    expect(result.arcData.radiusM).toBe(before.radiusM);
-    expect(result.arcData.openingAngleDeg).toBe(before.openingAngleDeg);
-    expect(result.pathCount).toBeGreaterThanOrEqual(2);
-    expect(result.lineCount).toBeGreaterThanOrEqual(1); // explicit diameter boundary
-    expect(result.pathData.some((d) => d.includes(' A') && d.includes(' 0 0 1 '))).toBe(true);
-
-    await page.screenshot({
-      path: `verification-artifacts/${testInfo.project.name}/zone-shape-180.png`,
-      fullPage: false,
-    });
+    expect(result.cx).toBeCloseTo(result.x, 6);
+    expect(result.cy).toBeCloseTo(result.y, 6);
+    expect(result.radiusM).toBe(60.96);
+    expect(result.angle).toBe(35);
   });
 
-  test('toggle can return to 270 degrees without changing arc data', async ({ page }) => {
-    await prep(page);
-    const before = await page.evaluate(() => ({ ...STATE.arcData }));
-    await page.locator('[data-zone-shape="180"]').click();
-    await page.locator('[data-zone-shape="270"]').click();
-    const after = await page.evaluate(() => ({
-      mode: STATE.zoneShapeMode,
-      arcData: { ...STATE.arcData },
-      active270: document.querySelector('[data-zone-shape="270"]').classList.contains('active'),
+  test('unlocked drag keeps only the circle and faint diameter; mobile controls remain usable', async ({ page }) => {
+    await prep(page, 30, 90, false);
+    await page.evaluate(() => { STATE.dragging = true; drawZone(); renderScreen('s6'); });
+    await expect(page.locator('#bottom-bar .app-btn').first()).toBeVisible();
+    await expect(page.locator('#bottom-bar img[src="assets/campaign-sign-marker.svg"]')).toBeVisible();
+    await expect(page.locator('#shape-test-toggle')).toHaveCount(0);
+    const result = await page.evaluate(() => ({
+      lines: document.querySelectorAll('#zone-svg line').length,
+      dash: document.querySelector('[data-zone-boundary]').getAttribute('stroke-dasharray'),
+      overflow: document.documentElement.scrollWidth > window.innerWidth,
+      barBottom: document.getElementById('bottom-bar').getBoundingClientRect().bottom,
+      barTop: document.getElementById('bottom-bar').getBoundingClientRect().top,
+      mapWidth: document.getElementById('map-wrapper').getBoundingClientRect().width,
+      viewportWidth: window.innerWidth,
+      height: window.innerHeight,
     }));
-    expect(after.mode).toBe('270');
-    expect(after.active270).toBe(true);
-    expect(after.arcData.radiusM).toBe(before.radiusM);
-    expect(after.arcData.openingAngleDeg).toBe(before.openingAngleDeg);
+    expect(result.lines).toBe(1);
+    expect(result.dash).toBe('6 3');
+    expect(result.overflow).toBe(false);
+    expect(result.barTop).toBeGreaterThanOrEqual(0);
+    expect(result.mapWidth).toBe(result.viewportWidth);
+    expect(result.barBottom).toBeLessThanOrEqual(result.height);
   });
 });

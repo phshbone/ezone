@@ -538,49 +538,6 @@
         display: none;
       }
 
-      /* Temporary geometry comparison control: 270° production shape vs 180° test semicircle. */
-      #shape-test-toggle {
-        position: absolute;
-        left: 12px;
-        bottom: 175px;
-        z-index: 500;
-        pointer-events: auto;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        padding: 5px;
-        border-radius: 12px;
-        background: rgba(10, 22, 40, 0.82);
-        border: 1px solid rgba(255, 255, 255, 0.28);
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-      }
-      #shape-test-toggle .shape-label {
-        color: rgba(255, 255, 255, 0.72);
-        font-family: 'Nunito', sans-serif;
-        font-size: 10px;
-        font-weight: 900;
-        letter-spacing: 0.7px;
-        padding: 0 4px;
-      }
-      .shape-test-btn {
-        min-width: 48px;
-        min-height: 36px;
-        padding: 6px 9px;
-        border: 1px solid rgba(255, 255, 255, 0.25);
-        border-radius: 8px;
-        background: rgba(255, 255, 255, 0.12);
-        color: white;
-        font-family: 'Nunito', sans-serif;
-        font-size: 13px;
-        font-weight: 900;
-        cursor: pointer;
-      }
-      .shape-test-btn.active {
-        background: #dc2626;
-        border-color: rgba(255, 255, 255, 0.75);
-      }
     </style>
   </head>
   <body>
@@ -804,11 +761,6 @@
         <div id="help-hinge" onclick="event.stopPropagation();showHelp();">HELP</div>
       </div>
       <div id="screen-tag"></div>
-      <div id="shape-test-toggle" aria-label="Test zone shape">
-        <span class="shape-label">TEST SHAPE</span>
-        <button type="button" class="shape-test-btn active" data-zone-shape="270" onclick="setZoneShapeMode('270')">270°</button>
-        <button type="button" class="shape-test-btn" data-zone-shape="180" onclick="setZoneShapeMode('180')">180°</button>
-      </div>
       <div id="zoom-ctrl">
         <button class="zoom-btn top" onclick="if(map)map.zoomIn()">+</button>
         <button class="zoom-btn mid" onclick="if(map)map.zoomOut()">&#8722;</button>
@@ -1343,7 +1295,6 @@
       const STATE = {
         screen: 'splash',
         prevMapScreen: null,
-        zoneShapeMode: '270', // temporary comparison toggle; 270 remains the production/default geometry
         gpsPos: null, // smoothed/display position for the blue puck
         rawGpsPos: null, // latest raw GPS reading from the phone
         gpsAccuracy: null, // latest reported GPS accuracy in meters
@@ -1638,17 +1589,6 @@
         updateEntranceMarker();
       }
 
-      function setZoneShapeMode(mode) {
-        if (mode !== '270' && mode !== '180') return;
-        STATE.zoneShapeMode = mode;
-        document.querySelectorAll('.shape-test-btn').forEach((btn) => {
-          btn.classList.toggle('active', btn.dataset.zoneShape === mode);
-          btn.setAttribute('aria-pressed', btn.dataset.zoneShape === mode ? 'true' : 'false');
-        });
-        if (STATE.arcData) drawZone();
-        showToast(mode === '180' ? '180° semicircle test' : '270° current E-Zone', mode === '180' ? '#d97706' : '#16a34a');
-      }
-
       function drawZone() {
         const svg = document.getElementById('zone-svg');
         svg.innerHTML = '';
@@ -1657,168 +1597,51 @@
         const zoneCenter = STATE.lockedPos ? STATE.lockedPos : STATE.gpsPos;
         const mpp =
           (156543.03392 * Math.cos((zoneCenter.lat * Math.PI) / 180)) / Math.pow(2, map.getZoom());
-        const radiusPx = radiusM / mpp;
+        const r = radiusM / mpp;
         const center = map.latLngToContainerPoint([zoneCenter.lat, zoneCenter.lng]);
-        const cx = center.x,
-          cy = center.y,
-          r = radiusPx;
-        // Temporary 180° comparison mode. The existing 270° path below is intentionally left intact.
-        if ((STATE.zoneShapeMode || '270') === '180') {
-          const startDeg180 = (openingAngleDeg - 90 + 360) % 360;
-          const endDeg180 = (openingAngleDeg + 90) % 360;
-          const startRad180 = (startDeg180 * Math.PI) / 180;
-          const endRad180 = (endDeg180 * Math.PI) / 180;
-          const sx180 = cx + r * Math.cos(startRad180);
-          const sy180 = cy + r * Math.sin(startRad180);
-          const ex180 = cx + r * Math.cos(endRad180);
-          const ey180 = cy + r * Math.sin(endRad180);
+        const cx = center.x, cy = center.y;
+        const ns = 'http://www.w3.org/2000/svg';
 
-          const fill180 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-          fill180.setAttribute(
-            'd',
-            `M${cx},${cy} L${sx180},${sy180} A${r},${r} 0 0 1 ${ex180},${ey180} Z`,
-          );
-          fill180.setAttribute(
-            'fill',
-            STATE.arcLocked ? 'rgba(220,38,38,0.28)' : 'rgba(220,38,38,0.18)',
-          );
-          svg.appendChild(fill180);
+        // The full circle is the distance boundary in every direction.
+        const circle = document.createElementNS(ns, 'circle');
+        circle.setAttribute('data-zone-boundary', '');
+        circle.setAttribute('cx', cx);
+        circle.setAttribute('cy', cy);
+        circle.setAttribute('r', r);
+        circle.setAttribute('fill', STATE.arcLocked ? 'rgba(220,38,38,0.28)' : 'rgba(220,38,38,0.18)');
+        circle.setAttribute('stroke', STATE.nearBoundary ? 'rgba(220,38,38,0.9)' : 'rgba(180,20,20,0.45)');
+        circle.setAttribute('stroke-width', STATE.arcLocked ? '2.5' : '2');
+        if (!STATE.arcLocked) circle.setAttribute('stroke-dasharray', '6 3');
+        svg.appendChild(circle);
 
-          const border180 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-          border180.setAttribute('d', `M${sx180},${sy180} A${r},${r} 0 0 1 ${ex180},${ey180}`);
-          border180.setAttribute('fill', 'none');
-          border180.setAttribute(
-            'stroke',
-            STATE.nearBoundary ? 'rgba(220,38,38,0.9)' : 'rgba(180,20,20,0.45)',
-          );
-          border180.setAttribute('stroke-width', STATE.arcLocked ? '4' : '2');
-          if (!STATE.arcLocked) border180.setAttribute('stroke-dasharray', '6 3');
-          svg.appendChild(border180);
+        // Visual reference only: reuse the drag direction, with a perpendicular diameter.
+        const dividerAngle = ((openingAngleDeg + 90) * Math.PI) / 180;
+        const dx = r * Math.cos(dividerAngle);
+        const dy = r * Math.sin(dividerAngle);
+        const divider = document.createElementNS(ns, 'line');
+        divider.setAttribute('data-zone-divider', '');
+        divider.setAttribute('x1', cx - dx);
+        divider.setAttribute('y1', cy - dy);
+        divider.setAttribute('x2', cx + dx);
+        divider.setAttribute('y2', cy + dy);
+        divider.setAttribute('stroke', 'rgba(180,20,20,0.18)');
+        divider.setAttribute('stroke-width', '1');
+        svg.appendChild(divider);
 
-          // Straight diameter through the entrance makes the semicircle boundary explicit.
-          const diameter180 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-          diameter180.setAttribute('x1', sx180);
-          diameter180.setAttribute('y1', sy180);
-          diameter180.setAttribute('x2', ex180);
-          diameter180.setAttribute('y2', ey180);
-          diameter180.setAttribute('stroke', 'rgba(180,20,20,0.45)');
-          diameter180.setAttribute('stroke-width', STATE.arcLocked ? '3' : '2');
-          if (!STATE.arcLocked) diameter180.setAttribute('stroke-dasharray', '6 3');
-          svg.appendChild(diameter180);
-
-          // Keep the same drag-direction guide used by the current geometry while sizing the zone.
-          if (!STATE.arcLocked && STATE.dragging) {
-            const guide180 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            const ang180 = (openingAngleDeg * Math.PI) / 180;
-            guide180.setAttribute('x1', cx);
-            guide180.setAttribute('y1', cy);
-            guide180.setAttribute('x2', cx + r * Math.cos(ang180));
-            guide180.setAttribute('y2', cy + r * Math.sin(ang180));
-            guide180.setAttribute('stroke', 'rgba(220,38,38,0.6)');
-            guide180.setAttribute('stroke-width', '2');
-            guide180.setAttribute('stroke-dasharray', '4 3');
-            svg.appendChild(guide180);
-          }
-
-          // Outer-rim distance label for the 180° test shape.
-          const currentFeet180 = Math.min(200, Math.max(0, Math.round(radiusM * 3.28084)));
-          const labelAngle180 = openingAngleDeg * Math.PI / 180;
-          const labelRadius180 = r + 18;
-          const text180 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-          text180.setAttribute('x', cx + labelRadius180 * Math.cos(labelAngle180));
-          text180.setAttribute('y', cy + labelRadius180 * Math.sin(labelAngle180));
-          text180.setAttribute('fill', '#dc2626');
-          text180.setAttribute('font-family', 'Oswald, sans-serif');
-          text180.setAttribute('font-size', '15');
-          text180.setAttribute('font-weight', '700');
-          text180.setAttribute('text-anchor', 'middle');
-          text180.setAttribute('dominant-baseline', 'middle');
-          text180.setAttribute('paint-order', 'stroke');
-          text180.setAttribute('stroke', 'rgba(255,255,255,0.9)');
-          text180.setAttribute('stroke-width', '3');
-          text180.textContent = currentFeet180 + ' ft';
-          svg.appendChild(text180);
-          return;
-        }
-
-        const excludeCenter = (openingAngleDeg + 180) % 360;
-        const startDeg = (excludeCenter + 45) % 360;
-        const endDeg = (excludeCenter - 45 + 360) % 360;
-        const startRad = (startDeg * Math.PI) / 180,
-          endRad = (endDeg * Math.PI) / 180;
-        const sx = cx + r * Math.cos(startRad),
-          sy = cy + r * Math.sin(startRad);
-        const ex = cx + r * Math.cos(endRad),
-          ey = cy + r * Math.sin(endRad);
-        const fill = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        fill.setAttribute(
-          'd',
-          'M' +
-            cx +
-            ',' +
-            cy +
-            ' L' +
-            sx +
-            ',' +
-            sy +
-            ' A' +
-            r +
-            ',' +
-            r +
-            ' 0 1 1 ' +
-            ex +
-            ',' +
-            ey +
-            ' Z',
-        );
-        fill.setAttribute(
-          'fill',
-          STATE.arcLocked ? 'rgba(220,38,38,0.28)' : 'rgba(220,38,38,0.18)',
-        );
-        svg.appendChild(fill);
-        const borderColor = STATE.nearBoundary ? 'rgba(220,38,38,0.9)' : 'rgba(180,20,20,0.45)';
-        const border = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        border.setAttribute(
-          'd',
-          'M' + sx + ',' + sy + ' A' + r + ',' + r + ' 0 1 1 ' + ex + ',' + ey,
-        );
-        border.setAttribute('fill', 'none');
-        border.setAttribute('stroke', borderColor);
-        border.setAttribute('stroke-width', STATE.arcLocked ? '2.5' : '2');
-        if (!STATE.arcLocked) border.setAttribute('stroke-dasharray', '6 3');
-        svg.appendChild(border);
-
-        // Persistent curved outer-rim distance label. Keep it tight, small, and plain red.
-        const currentFeet = Math.min(200, Math.max(0, Math.round(radiusM * 3.28084)));
-        const feetLabel = currentFeet + ' ft';
+        // Preserve the existing curved distance label and its typography.
         const labelR = r + 4;
-        const labelSx = cx + labelR * Math.cos(startRad);
-        const labelSy = cy + labelR * Math.sin(startRad);
-        const labelEx = cx + labelR * Math.cos(endRad);
-        const labelEy = cy + labelR * Math.sin(endRad);
+        const labelStart = ((openingAngleDeg + 225) * Math.PI) / 180;
+        const lx = labelR * Math.cos(labelStart);
+        const ly = labelR * Math.sin(labelStart);
         const labelPathId = 'arc-label-path-' + Date.now();
-        const labelPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        const defs = document.createElementNS(ns, 'defs');
+        const labelPath = document.createElementNS(ns, 'path');
         labelPath.setAttribute('id', labelPathId);
-        labelPath.setAttribute(
-          'd',
-          'M' +
-            labelSx +
-            ',' +
-            labelSy +
-            ' A' +
-            labelR +
-            ',' +
-            labelR +
-            ' 0 1 1 ' +
-            labelEx +
-            ',' +
-            labelEy,
-        );
-        labelPath.setAttribute('fill', 'none');
-        labelPath.setAttribute('stroke', 'none');
-        svg.appendChild(labelPath);
-
-        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        labelPath.setAttribute('d',
+          `M${cx + lx},${cy + ly} A${labelR},${labelR} 0 0 1 ${cx - lx},${cy - ly} A${labelR},${labelR} 0 0 1 ${cx + lx},${cy + ly}`);
+        defs.appendChild(labelPath);
+        svg.appendChild(defs);
+        const label = document.createElementNS(ns, 'text');
         label.setAttribute('font-family', 'Nunito, Arial, sans-serif');
         label.setAttribute('font-size', STATE.arcLocked ? '13' : '12');
         label.setAttribute('font-weight', '900');
@@ -1827,25 +1650,12 @@
         label.setAttribute('stroke-width', '0');
         label.setAttribute('paint-order', 'normal');
         label.setAttribute('letter-spacing', '0');
-        const tp = document.createElementNS('http://www.w3.org/2000/svg', 'textPath');
+        const tp = document.createElementNS(ns, 'textPath');
         tp.setAttributeNS('http://www.w3.org/1999/xlink', 'href', '#' + labelPathId);
-        tp.setAttribute('startOffset', '9%');
-        tp.textContent = feetLabel;
+        tp.setAttribute('startOffset', '6.75%');
+        tp.textContent = Math.min(200, Math.max(0, Math.round(radiusM * 3.28084))) + ' ft';
         label.appendChild(tp);
         svg.appendChild(label);
-
-        if (!STATE.arcLocked && STATE.dragging) {
-          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-          const ang = (openingAngleDeg * Math.PI) / 180;
-          line.setAttribute('x1', cx);
-          line.setAttribute('y1', cy);
-          line.setAttribute('x2', cx + r * Math.cos(ang));
-          line.setAttribute('y2', cy + r * Math.sin(ang));
-          line.setAttribute('stroke', 'rgba(220,38,38,0.6)');
-          line.setAttribute('stroke-width', '2');
-          line.setAttribute('stroke-dasharray', '4 3');
-          svg.appendChild(line);
-        }
       }
       function metersToPixels(meters) {
         if (!STATE.gpsPos || !map) return 100;
