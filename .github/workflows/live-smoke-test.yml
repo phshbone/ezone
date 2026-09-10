@@ -2,10 +2,28 @@ name: Live Smoke Test
 
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: Browser target to verify
+        required: true
+        default: both
+        type: choice
+        options:
+          - local
+          - deployed
+          - both
+      live_base_url:
+        description: Optional deployed HTTPS URL override
+        required: false
+        type: string
   push:
     branches:
       - main
     paths:
+      - 'index.html'
+      - 'feedback.html'
+      - 'instructions.html'
+      - 'assets/**'
       - 'package.json'
       - 'playwright.config.js'
       - 'tests/**'
@@ -14,6 +32,10 @@ on:
     branches:
       - main
     paths:
+      - 'index.html'
+      - 'feedback.html'
+      - 'instructions.html'
+      - 'assets/**'
       - 'package.json'
       - 'playwright.config.js'
       - 'tests/**'
@@ -23,42 +45,147 @@ permissions:
   contents: read
 
 jobs:
-  playwright-smoke:
+  local-playwright-smoke:
+    if: github.event_name != 'workflow_dispatch' || inputs.mode == 'local' || inputs.mode == 'both'
     runs-on: ubuntu-latest
     timeout-minutes: 10
-
+    env:
+      LIVE_SMOKE_MODE: local
+      LOCAL_BASE_URL: http://127.0.0.1:4173
     steps:
       - name: Checkout branch
         uses: actions/checkout@v4
-
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: '24'
-
       - name: Install test dependencies
         run: npm install
-
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-
-      - name: Run Live Smoke Test
+      - name: Run Local Live Smoke Test
         run: npm run test:live-smoke
-
+      - name: Upload successful verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-smoke-verification-local
+          path: verification-artifacts/
+          if-no-files-found: ignore
+          retention-days: 14
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
+          name: playwright-report-local
           path: playwright-report/
           if-no-files-found: ignore
-          retention-days: 7
-
+          retention-days: 14
       - name: Upload failure evidence
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-failure-evidence
+          name: playwright-failure-evidence-local
           path: test-results/
           if-no-files-found: ignore
-          retention-days: 7
+          retention-days: 14
+
+  deployed-playwright-smoke:
+    if: github.event_name != 'workflow_dispatch' || inputs.mode == 'deployed' || inputs.mode == 'both'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      LIVE_SMOKE_MODE: deployed
+      PREVIEW_BASE_URL: https://phshbone.github.io/billstestpage/ezone-cleanup/
+      PRODUCTION_BASE_URL: https://phshbone.github.io/modzone/
+      INPUT_LIVE_BASE_URL: ${{ inputs.live_base_url }}
+      DEPLOY_IDENTITY_FILES: index.html,feedback.html,instructions.html,assets/campaign-sign-marker.svg
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install test dependencies
+        run: npm install
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Resolve deployed URL
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -n "${INPUT_LIVE_BASE_URL:-}" ]; then
+            base="${INPUT_LIVE_BASE_URL}"
+          elif [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
+            base="${PREVIEW_BASE_URL}"
+          else
+            base="${PRODUCTION_BASE_URL}"
+          fi
+          case "$base" in
+            https://*) ;;
+            *) echo "Deployed Live Smoke requires an HTTPS URL: $base"; exit 2 ;;
+          esac
+          echo "LIVE_BASE_URL=${base%/}" >> "$GITHUB_ENV"
+      - name: Wait for exact deployed build
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="${LIVE_BASE_URL%/}"
+          IFS=',' read -ra files <<< "$DEPLOY_IDENTITY_FILES"
+          deadline=$((SECONDS + 300))
+          while true; do
+            all_match=1
+            for raw in "${files[@]}"; do
+              file="$(echo "$raw" | xargs)"
+              [ -n "$file" ] || continue
+              [ -f "$file" ] || { echo "Identity file missing from checkout: $file"; exit 1; }
+              tmp="$(mktemp)"
+              rev="${GITHUB_SHA}-${RANDOM}"
+              if ! curl --fail --silent --show-error \
+                  -H 'Cache-Control: no-cache, no-store, max-age=0' \
+                  -H 'Pragma: no-cache' \
+                  "${base}/${file}?live-smoke-rev=${rev}" -o "$tmp"; then
+                all_match=0
+              elif ! cmp -s "$file" "$tmp"; then
+                echo "Waiting for deployed file to match: $file"
+                all_match=0
+              fi
+              rm -f "$tmp"
+            done
+            if [ "$all_match" -eq 1 ]; then
+              echo "Exact deployed application files verified."
+              break
+            fi
+            if [ "$SECONDS" -ge "$deadline" ]; then
+              echo "Timed out waiting for the deployed application to match the checked-out candidate."
+              exit 1
+            fi
+            sleep 10
+          done
+      - name: Run Deployed Live Smoke Test
+        run: npm run test:live-smoke
+      - name: Upload successful verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-smoke-verification-deployed
+          path: verification-artifacts/
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-deployed
+          path: playwright-report/
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Upload failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-failure-evidence-deployed
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 14
