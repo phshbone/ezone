@@ -1602,22 +1602,34 @@
         const cx = center.x, cy = center.y;
         const ns = 'http://www.w3.org/2000/svg';
 
+        // Both halves belong to the same measured zone; shading only shows orientation.
+        const dividerAngle = ((openingAngleDeg + 90) * Math.PI) / 180;
+        const dx = r * Math.cos(dividerAngle);
+        const dy = r * Math.sin(dividerAngle);
+        if (STATE.arcLocked) {
+          for (const [half, sweep, opacity] of [['front', 0, 0.33], ['rear', 1, 0.18]]) {
+            const fill = document.createElementNS(ns, 'path');
+            fill.setAttribute('data-zone-half', half);
+            fill.setAttribute('d', `M${cx + dx},${cy + dy} A${r},${r} 0 0 ${sweep} ${cx - dx},${cy - dy} Z`);
+            fill.setAttribute('fill', `rgba(220,38,38,${opacity})`);
+            fill.setAttribute('stroke', 'none');
+            svg.appendChild(fill);
+          }
+        }
+
         // The full circle is the distance boundary in every direction.
         const circle = document.createElementNS(ns, 'circle');
         circle.setAttribute('data-zone-boundary', '');
         circle.setAttribute('cx', cx);
         circle.setAttribute('cy', cy);
         circle.setAttribute('r', r);
-        circle.setAttribute('fill', STATE.arcLocked ? 'rgba(220,38,38,0.28)' : 'rgba(220,38,38,0.18)');
+        circle.setAttribute('fill', STATE.arcLocked ? 'none' : 'rgba(220,38,38,0.18)');
         circle.setAttribute('stroke', STATE.nearBoundary ? 'rgba(220,38,38,0.9)' : 'rgba(180,20,20,0.45)');
         circle.setAttribute('stroke-width', STATE.arcLocked ? '2.5' : '2');
         if (!STATE.arcLocked) circle.setAttribute('stroke-dasharray', '6 3');
         svg.appendChild(circle);
 
         // Visual reference only: reuse the drag direction, with a perpendicular diameter.
-        const dividerAngle = ((openingAngleDeg + 90) * Math.PI) / 180;
-        const dx = r * Math.cos(dividerAngle);
-        const dy = r * Math.sin(dividerAngle);
         const divider = document.createElementNS(ns, 'line');
         divider.setAttribute('data-zone-divider', '');
         divider.setAttribute('x1', cx - dx);
@@ -1627,6 +1639,21 @@
         divider.setAttribute('stroke', 'rgba(180,20,20,0.18)');
         divider.setAttribute('stroke-width', '1');
         svg.appendChild(divider);
+
+        // Restore the original temporary direction guide only during outward creation.
+        if (!STATE.arcLocked && STATE.dragging) {
+          const guide = document.createElementNS(ns, 'line');
+          const angle = (openingAngleDeg * Math.PI) / 180;
+          guide.setAttribute('data-zone-drag-guide', '');
+          guide.setAttribute('x1', cx);
+          guide.setAttribute('y1', cy);
+          guide.setAttribute('x2', cx + r * Math.cos(angle));
+          guide.setAttribute('y2', cy + r * Math.sin(angle));
+          guide.setAttribute('stroke', 'rgba(220,38,38,0.6)');
+          guide.setAttribute('stroke-width', '2');
+          guide.setAttribute('stroke-dasharray', '4 3');
+          svg.appendChild(guide);
+        }
 
         // Preserve the existing curved distance label and its typography.
         const labelR = r + 4;
@@ -1668,7 +1695,14 @@
       let boundaryAlertTime = 0,
         wasInsideZone = null;
       function checkBoundary() {
-        if (!STATE.arcLocked || !STATE.arcData || !STATE.gpsPos || !STATE.lockedPos) return;
+        if (!STATE.arcLocked || !STATE.arcData || !STATE.gpsPos || !STATE.lockedPos) {
+          wasInsideZone = null;
+          if (STATE.nearBoundary) {
+            STATE.nearBoundary = false;
+            drawZone();
+          }
+          return;
+        }
         const now = Date.now();
         const d = haversine(
           STATE.gpsPos.lat,
@@ -1676,14 +1710,24 @@
           STATE.lockedPos.lat,
           STATE.lockedPos.lng,
         );
-        const isInside = d < STATE.arcData.radiusM;
-        const edgeDist = Math.abs(d - STATE.arcData.radiusM);
-        if (wasInsideZone !== null && wasInsideZone !== isInside) {
-          vibrate([200, 100, 200, 100, 200]);
-          playBoundaryWarning();
+        const signedDistance = d - STATE.arcData.radiusM;
+        const nearBoundary = Math.abs(signedDistance) < 3.05;
+        if (STATE.nearBoundary !== nearBoundary) {
+          STATE.nearBoundary = nearBoundary;
+          drawZone();
         }
-        wasInsideZone = isInside;
-        if (edgeDist < 3.05 && now - boundaryAlertTime > 3000) {
+        // Retain the last confirmed side within a 1-metre band on either side.
+        // This detects skipped samples without repeated alerts from small edge jitter.
+        const nextInside = wasInsideZone === null
+          ? signedDistance < 0
+          : signedDistance <= -1 ? true : signedDistance >= 1 ? false : wasInsideZone;
+        const crossed = wasInsideZone !== null && wasInsideZone !== nextInside;
+        wasInsideZone = nextInside;
+        if (crossed) {
+          boundaryAlertTime = now;
+          playBoundaryWarning();
+          vibrate([200, 100, 200, 100, 200]);
+        } else if (nearBoundary && now - boundaryAlertTime > 3000) {
           boundaryAlertTime = now;
           vibrate([150, 80, 150]);
         }
@@ -1700,7 +1744,9 @@
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
       }
       function vibrate(p) {
-        if (navigator.vibrate) navigator.vibrate(p);
+        try {
+          if (navigator.vibrate) navigator.vibrate(p);
+        } catch (e) {} // Haptics must never interrupt audio or visual feedback.
       }
       let sharedAudioContext = null;
       function getAudioContext() {
@@ -1736,14 +1782,13 @@
         } catch (e) {}
       }
       function playDing() {
-        // One clear high ding: zone setup reached 200 ft.
+        // One clear high ding: the configured zone has been established.
         playTone(880, 0, 0.42, 0.28);
       }
       function playBoundaryWarning() {
-        // Three lower pulses: walking crossed the established 200-ft boundary.
+        // Two distinct lower dings: crossed the configured circular boundary.
         playTone(520, 0.00, 0.18, 0.30);
         playTone(520, 0.26, 0.18, 0.30);
-        playTone(520, 0.52, 0.22, 0.34);
       }
 
       function setupDragListeners() {
@@ -1801,12 +1846,12 @@
         if (capped && !zoneDone) {
           zoneDone = true;
           vibrate([200, 100, 200, 100, 300]);
-          playDing();
         }
       }
       function onDragEnd(e) {
         if (!STATE.dragging) return;
         STATE.dragging = false;
+        document.querySelector('[data-zone-drag-guide]')?.remove();
         document.getElementById('dist-readout').className = '';
 
         if (!STATE.arcData || STATE.screen !== 's3') {
@@ -1828,6 +1873,10 @@
         STATE.arcData.radiusM = CONFIG.defaultRadiusMeters;
         STATE.arcData.radiusPx = metersToPixels(CONFIG.defaultRadiusMeters);
         STATE.arcLocked = true;
+        wasInsideZone = null;
+        checkBoundary();
+        playDing();
+        drawZone();
         drawGPSMarker('normal');
         saveSession();
         setTimeout(() => goTo('s4'), 400);

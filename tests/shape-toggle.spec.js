@@ -20,6 +20,65 @@ async function prep(page, radiusM = 60.96, angle = 0, locked = true) {
 }
 
 test.describe('full-circle zone visualization', () => {
+  test('completed halves have restrained shading and follow the drag direction', async ({ page }) => {
+    await prep(page);
+    for (const angle of [0, 35, 90, 180, 270]) {
+      const result = await page.evaluate((angle) => {
+        STATE.arcData.openingAngleDeg = angle;
+        STATE.dragging = true; // A locked zone must suppress the guide even with stale drag state.
+        drawZone();
+        const circle = document.querySelector('[data-zone-boundary]');
+        const cx = +circle.getAttribute('cx'), cy = +circle.getAttribute('cy'), r = +circle.getAttribute('r');
+        const rad = angle * Math.PI / 180;
+        const frontPoint = new DOMPoint(cx + r * 0.5 * Math.cos(rad), cy + r * 0.5 * Math.sin(rad));
+        const rearPoint = new DOMPoint(cx - r * 0.5 * Math.cos(rad), cy - r * 0.5 * Math.sin(rad));
+        return {
+          halves: [...document.querySelectorAll('[data-zone-half]')].map(p => ({
+            name: p.dataset.zoneHalf, fill: p.getAttribute('fill'), stroke: p.getAttribute('stroke'),
+            front: p.isPointInFill(frontPoint), rear: p.isPointInFill(rearPoint),
+          })),
+          circleFill: circle.getAttribute('fill'),
+          guides: document.querySelectorAll('[data-zone-drag-guide]').length,
+        };
+      }, angle);
+      expect(result.halves).toEqual([
+        { name: 'front', fill: 'rgba(220,38,38,0.33)', stroke: 'none', front: true, rear: false },
+        { name: 'rear', fill: 'rgba(220,38,38,0.18)', stroke: 'none', front: false, rear: true },
+      ]);
+      expect(result.circleFill).toBe('none');
+      expect(result.guides).toBe(0);
+    }
+  });
+
+  test('creation guide follows actual drag and disappears on short release and lock', async ({ page }) => {
+    await prep(page, 30, 0, false);
+    const result = await page.evaluate(() => {
+      STATE.screen = 's3'; zoneDone = false;
+      const center = map.latLngToContainerPoint([STATE.lockedPos.lat, STATE.lockedPos.lng]);
+      const rect = document.getElementById('map-wrapper').getBoundingClientRect();
+      const event = (x, y) => ({ clientX: rect.left + x, clientY: rect.top + y, preventDefault() {} });
+      onDragStart(event(center.x, center.y));
+      onDragMove(event(center.x + 30, center.y + 30));
+      const guide = document.querySelector('[data-zone-drag-guide]');
+      const active = !!guide;
+      const guideAngle = Math.atan2(+guide.getAttribute('y2') - +guide.getAttribute('y1'), +guide.getAttribute('x2') - +guide.getAttribute('x1')) * 180 / Math.PI;
+      onDragEnd({});
+      const short = { locked: STATE.arcLocked, guides: document.querySelectorAll('[data-zone-drag-guide]').length };
+      onDragStart(event(center.x, center.y));
+      const distance = metersToPixels(CONFIG.defaultRadiusMeters) + 10;
+      onDragMove(event(center.x + distance, center.y));
+      onDragEnd({});
+      return { active, guideAngle, short, locked: STATE.arcLocked, guides: document.querySelectorAll('[data-zone-drag-guide]').length, halves: document.querySelectorAll('[data-zone-half]').length, radius: STATE.arcData.radiusM };
+    });
+    expect(result.active).toBe(true);
+    expect(result.guideAngle).toBeCloseTo(45, 6);
+    expect(result.short).toEqual({ locked: false, guides: 0 });
+    expect(result.locked).toBe(true);
+    expect(result.guides).toBe(0);
+    expect(result.halves).toBe(2);
+    expect(result.radius).toBe(60.96);
+  });
+
   test('uses one complete circle at the configured radius and entrance', async ({ page }) => {
     for (const radiusM of [30, 60.96]) {
       await prep(page, radiusM);
@@ -45,7 +104,7 @@ test.describe('full-circle zone visualization', () => {
       expect(result.cx).toBeCloseTo(result.center.x, 6);
       expect(result.cy).toBeCloseTo(result.center.y, 6);
       expect(result.r).toBeCloseTo(result.expectedR, 6);
-      expect(result.visiblePaths).toBe(0);
+      expect(result.visiblePaths).toBe(2);
       expect(result.lines).toBe(1);
       expect(result.toggles).toBe(0);
       expect(result.markers).toBe(0);
@@ -96,7 +155,7 @@ test.describe('full-circle zone visualization', () => {
     expect(result.angle).toBe(35);
   });
 
-  test('unlocked drag keeps only the circle and faint diameter; mobile controls remain usable', async ({ page }) => {
+  test('unlocked drag shows the temporary guide; mobile controls remain usable', async ({ page }) => {
     await prep(page, 30, 90, false);
     await page.evaluate(() => { STATE.dragging = true; drawZone(); renderScreen('s6'); });
     await expect(page.locator('#bottom-bar .app-btn').first()).toBeVisible();
@@ -112,7 +171,7 @@ test.describe('full-circle zone visualization', () => {
       viewportWidth: window.innerWidth,
       height: window.innerHeight,
     }));
-    expect(result.lines).toBe(1);
+    expect(result.lines).toBe(2);
     expect(result.dash).toBe('6 3');
     expect(result.overflow).toBe(false);
     expect(result.barTop).toBeGreaterThanOrEqual(0);
