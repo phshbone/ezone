@@ -66,7 +66,7 @@ test.describe('E-Zone regular source smoke', () => {
     expect(indexSource).toContain('new AbortController()');
     expect(indexSource).toContain('if (!navigator.onLine)');
     expect(indexSource).toContain('photos are still queued');
-    expect(indexSource).toContain('Try again when signal improves');
+    expect(indexSource).toContain('try Send again when signal improves');
   });
 
   test('Help wording follows the current incident and BOE workflow', async () => {
