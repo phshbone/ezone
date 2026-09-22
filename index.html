@@ -301,6 +301,23 @@
         pointer-events: none;
         z-index: 300;
       }
+      #zone-svg.boundary-alert-pulse [data-zone-boundary] {
+        animation: boundary-alert-pulse 900ms ease-out 1;
+      }
+      @keyframes boundary-alert-pulse {
+        0% {
+          stroke-width: 2.5;
+          stroke-opacity: 0.95;
+        }
+        45% {
+          stroke-width: 8;
+          stroke-opacity: 1;
+        }
+        100% {
+          stroke-width: 2.5;
+          stroke-opacity: 0.95;
+        }
+      }
       #dist-readout {
         position: absolute;
         z-index: 501;
@@ -1280,6 +1297,8 @@
         agreementKey: 'ezone-agreed',
         defaultRadiusFeet: 200,
         defaultRadiusMeters: 60.96,
+        boundaryMoatHalfWidthFeet: 4,
+        boundaryRearmPaddingFeet: 4,
 
         // GPS smoothing: keeps the blue puck from visually jumping while standing still.
         gpsJitterMeters: 2.4, // about 8 feet
@@ -1692,45 +1711,87 @@
         return meters / mpp;
       }
 
-      let boundaryAlertTime = 0,
-        wasInsideZone = null;
+      let previousBoundaryDistanceM = null,
+        boundaryAlertArmed = true,
+        boundaryPulseTimer = null;
+
+      function resetBoundaryTracking() {
+        previousBoundaryDistanceM = null;
+        boundaryAlertArmed = true;
+        STATE.nearBoundary = false;
+        const svg = document.getElementById('zone-svg');
+        if (svg) svg.classList.remove('boundary-alert-pulse');
+        if (boundaryPulseTimer) {
+          clearTimeout(boundaryPulseTimer);
+          boundaryPulseTimer = null;
+        }
+      }
+
+      function triggerBoundaryPulse() {
+        const svg = document.getElementById('zone-svg');
+        if (!svg) return;
+        svg.classList.remove('boundary-alert-pulse');
+        void svg.getBoundingClientRect();
+        svg.classList.add('boundary-alert-pulse');
+        if (boundaryPulseTimer) clearTimeout(boundaryPulseTimer);
+        boundaryPulseTimer = setTimeout(() => {
+          svg.classList.remove('boundary-alert-pulse');
+          boundaryPulseTimer = null;
+        }, 900);
+      }
+
       function checkBoundary() {
-        if (!STATE.arcLocked || !STATE.arcData || !STATE.gpsPos || !STATE.lockedPos) {
-          wasInsideZone = null;
-          if (STATE.nearBoundary) {
-            STATE.nearBoundary = false;
-            drawZone();
-          }
+        // Boundary alerts use the latest raw GPS sample. The smoothed position remains visual-only
+        // so display smoothing cannot delay or suppress a real moat entry/crossing.
+        const alertPos = STATE.rawGpsPos || STATE.gpsPos;
+        if (!STATE.arcLocked || !STATE.arcData || !alertPos || !STATE.lockedPos) {
+          resetBoundaryTracking();
           return;
         }
-        const now = Date.now();
+
         const d = haversine(
-          STATE.gpsPos.lat,
-          STATE.gpsPos.lng,
+          alertPos.lat,
+          alertPos.lng,
           STATE.lockedPos.lat,
           STATE.lockedPos.lng,
         );
-        const signedDistance = d - STATE.arcData.radiusM;
-        const nearBoundary = Math.abs(signedDistance) < 3.05;
-        if (STATE.nearBoundary !== nearBoundary) {
-          STATE.nearBoundary = nearBoundary;
+        const moatHalfWidthM = CONFIG.boundaryMoatHalfWidthFeet * 0.3048;
+        const rearmPaddingM = CONFIG.boundaryRearmPaddingFeet * 0.3048;
+        const innerMoatM = Math.max(0, STATE.arcData.radiusM - moatHalfWidthM);
+        const outerMoatM = STATE.arcData.radiusM + moatHalfWidthM;
+        const isInMoat = d >= innerMoatM && d <= outerMoatM;
+
+        const previousInMoat =
+          previousBoundaryDistanceM !== null &&
+          previousBoundaryDistanceM >= innerMoatM &&
+          previousBoundaryDistanceM <= outerMoatM;
+        const enteredMoat =
+          previousBoundaryDistanceM !== null && !previousInMoat && isInMoat;
+        const skippedAcrossMoat =
+          previousBoundaryDistanceM !== null &&
+          ((previousBoundaryDistanceM < innerMoatM && d > outerMoatM) ||
+            (previousBoundaryDistanceM > outerMoatM && d < innerMoatM));
+
+        if (STATE.nearBoundary !== isInMoat) {
+          STATE.nearBoundary = isInMoat;
           drawZone();
         }
-        // Retain the last confirmed side within a 1-metre band on either side.
-        // This detects skipped samples without repeated alerts from small edge jitter.
-        const nextInside = wasInsideZone === null
-          ? signedDistance < 0
-          : signedDistance <= -1 ? true : signedDistance >= 1 ? false : wasInsideZone;
-        const crossed = wasInsideZone !== null && wasInsideZone !== nextInside;
-        wasInsideZone = nextInside;
-        if (crossed) {
-          boundaryAlertTime = now;
+
+        if (boundaryAlertArmed && (enteredMoat || skippedAcrossMoat)) {
           playBoundaryWarning();
-          vibrate([200, 100, 200, 100, 200]);
-        } else if (nearBoundary && now - boundaryAlertTime > 3000) {
-          boundaryAlertTime = now;
-          vibrate([150, 80, 150]);
+          triggerBoundaryPulse();
+          vibrate([180, 70, 180, 70, 240]);
+          boundaryAlertArmed = false;
         }
+
+        // Do not re-arm just because one noisy sample slips outside the 8-foot moat.
+        // Require another 4 feet of clear separation before a new approach can alert.
+        const clearlyInside =
+          d <= Math.max(0, innerMoatM - rearmPaddingM);
+        const clearlyOutside = d >= outerMoatM + rearmPaddingM;
+        if (!isInMoat && (clearlyInside || clearlyOutside)) boundaryAlertArmed = true;
+
+        previousBoundaryDistanceM = d;
       }
       function haversine(lat1, lon1, lat2, lon2) {
         const R = 6371000,
@@ -1761,7 +1822,7 @@
           if (c && c.state === 'suspended') c.resume();
         } catch (e) {}
       }
-      function playTone(frequency, startOffset, duration, volume) {
+      function playTone(frequency, startOffset, duration, volume, waveform = 'sine') {
         try {
           const c = getAudioContext();
           if (!c) return;
@@ -1772,7 +1833,7 @@
           const stop = start + duration;
           o.connect(g);
           g.connect(c.destination);
-          o.type = 'sine';
+          o.type = waveform;
           o.frequency.setValueAtTime(frequency, start);
           g.gain.setValueAtTime(0.001, start);
           g.gain.exponentialRampToValueAtTime(volume || 0.25, start + 0.015);
@@ -1786,9 +1847,10 @@
         playTone(880, 0, 0.42, 0.28);
       }
       function playBoundaryWarning() {
-        // Two distinct lower dings: crossed the configured circular boundary.
-        playTone(520, 0.00, 0.18, 0.30);
-        playTone(520, 0.26, 0.18, 0.30);
+        // Three short square-wave bursts: distinct from the musical setup ding.
+        playTone(165, 0.00, 0.09, 0.22, 'square');
+        playTone(165, 0.14, 0.09, 0.22, 'square');
+        playTone(165, 0.28, 0.09, 0.22, 'square');
       }
 
       function setupDragListeners() {
@@ -1873,7 +1935,7 @@
         STATE.arcData.radiusM = CONFIG.defaultRadiusMeters;
         STATE.arcData.radiusPx = metersToPixels(CONFIG.defaultRadiusMeters);
         STATE.arcLocked = true;
-        wasInsideZone = null;
+        resetBoundaryTracking();
         checkBoundary();
         playDing();
         drawZone();
@@ -2724,7 +2786,7 @@
         }
         if (id === 's3') {
           zoneDone = false;
-          wasInsideZone = null;
+          resetBoundaryTracking();
           STATE.arcData = null;
           STATE.arcLocked = false;
           document.getElementById('zone-svg').innerHTML = '';
@@ -2750,7 +2812,7 @@
         STATE.arcData = null;
         STATE.arcLocked = false;
         zoneDone = false;
-        wasInsideZone = null;
+        resetBoundaryTracking();
         document.getElementById('zone-svg').innerHTML = '';
         if (STATE.entranceMarker) {
           map.removeLayer(STATE.entranceMarker);
@@ -2846,7 +2908,7 @@
         }
         document.getElementById('zone-svg').innerHTML = '';
         zoneDone = false;
-        wasInsideZone = null;
+        resetBoundaryTracking();
         drawGPSMarker('normal');
         saveSession();
         goTo('s1');
@@ -2888,7 +2950,7 @@
         document.getElementById('zone-svg').innerHTML = '';
         document.getElementById('photo-overlay').classList.remove('show');
         zoneDone = false;
-        wasInsideZone = null;
+        resetBoundaryTracking();
         drawGPSMarker('normal');
         goTo('s1');
         setTimeout(() => {
