@@ -1,859 +1,935 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="theme-color" content="#0a1628"/>
-<title>E-Zone Beta Report</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="theme-color" content="#0a1628" />
+    <title>E-Zone Beta Report</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Oswald:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
 
-<style>
-  :root {
-    --navy: #0a1628;
-    --card: rgba(255,255,255,0.055);
-    --card2: rgba(255,255,255,0.08);
-    --border: rgba(255,255,255,0.13);
-    --red: #dc2626;
-    --blue: #1d4ed8;
-    --gold: #f59e0b;
-    --green: #16a34a;
-    --white: #ffffff;
-  }
+    <style>
+      :root {
+        --navy: #0a1628;
+        --card: rgba(255, 255, 255, 0.055);
+        --card2: rgba(255, 255, 255, 0.08);
+        --border: rgba(255, 255, 255, 0.13);
+        --red: #dc2626;
+        --blue: #1d4ed8;
+        --gold: #f59e0b;
+        --green: #16a34a;
+        --white: #ffffff;
+      }
 
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    -webkit-tap-highlight-color: transparent;
-  }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        -webkit-tap-highlight-color: transparent;
+      }
 
-  html, body {
-    background: var(--navy);
-    font-family: 'Nunito', sans-serif;
-    color: var(--white);
-    min-height: 100%;
-  }
+      html,
+      body {
+        background: var(--navy);
+        font-family: 'Nunito', sans-serif;
+        color: var(--white);
+        min-height: 100%;
+      }
 
-  body {
-    padding-bottom: env(safe-area-inset-bottom);
-  }
+      body {
+        padding-bottom: env(safe-area-inset-bottom);
+      }
 
-  .header {
-    background:
-      radial-gradient(circle at 50% 0%, rgba(29,78,216,0.24), transparent 45%),
-      linear-gradient(to bottom, #090f2b, #0d1b4f);
-    padding: 48px 20px 28px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-    border-bottom: 1px solid rgba(255,255,255,0.07);
-  }
+      .header {
+        background:
+          radial-gradient(circle at 50% 0%, rgba(29, 78, 216, 0.24), transparent 45%),
+          linear-gradient(to bottom, #090f2b, #0d1b4f);
+        padding: 48px 20px 28px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      }
 
-  .header-stars {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    padding: 8px;
-    gap: 6px;
-    justify-content: space-around;
-    opacity: 0.42;
-  }
+      .header-stars {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        padding: 8px;
+        gap: 6px;
+        justify-content: space-around;
+        opacity: 0.42;
+      }
 
-  .header-stars span {
-    font-size: 12px;
-  }
+      .header-stars span {
+        font-size: 12px;
+      }
 
-  .header-badge {
-    display: inline-block;
-    background: var(--red);
-    color: white;
-    font-family: 'Oswald', sans-serif;
-    font-size: 11px;
-    letter-spacing: 3px;
-    padding: 5px 16px;
-    border-radius: 20px;
-    margin-bottom: 12px;
-    box-shadow: 0 6px 20px rgba(220,38,38,0.22);
-  }
+      .header-badge {
+        display: inline-block;
+        background: var(--red);
+        color: white;
+        font-family: 'Oswald', sans-serif;
+        font-size: 11px;
+        letter-spacing: 3px;
+        padding: 5px 16px;
+        border-radius: 20px;
+        margin-bottom: 12px;
+        box-shadow: 0 6px 20px rgba(220, 38, 38, 0.22);
+      }
 
-  .header h1 {
-    font-family: 'Oswald', sans-serif;
-    font-size: 34px;
-    font-weight: 700;
-    letter-spacing: 1.4px;
-    line-height: 1.15;
-    margin-bottom: 8px;
-  }
+      .header h1 {
+        font-family: 'Oswald', sans-serif;
+        font-size: 34px;
+        font-weight: 700;
+        letter-spacing: 1.4px;
+        line-height: 1.15;
+        margin-bottom: 8px;
+      }
 
-  .header h1 span {
-    color: var(--red);
-  }
+      .header h1 span {
+        color: var(--red);
+      }
 
-  .header p {
-    font-size: 14px;
-    font-weight: 700;
-    color: rgba(255,255,255,0.72);
-    line-height: 1.5;
-    max-width: 350px;
-    margin: 0 auto;
-  }
+      .header p {
+        font-size: 14px;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.72);
+        line-height: 1.5;
+        max-width: 350px;
+        margin: 0 auto;
+      }
 
-  .header .micro-note {
-    margin-top: 12px;
-    display: inline-block;
-    font-size: 11px;
-    font-weight: 900;
-    letter-spacing: 0.5px;
-    color: rgba(255,255,255,0.76);
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 999px;
-    padding: 7px 12px;
-  }
+      .header .micro-note {
+        margin-top: 12px;
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0.5px;
+        color: rgba(255, 255, 255, 0.76);
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 999px;
+        padding: 7px 12px;
+      }
 
-  .progress-wrap {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: rgba(10,22,40,0.96);
-    backdrop-filter: blur(10px);
-    padding: 10px 16px 8px;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-  }
+      .progress-wrap {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: rgba(10, 22, 40, 0.96);
+        backdrop-filter: blur(10px);
+        padding: 10px 16px 8px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      }
 
-  .progress-bar {
-    height: 5px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 6px;
-    overflow: hidden;
-  }
+      .progress-bar {
+        height: 5px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
+        overflow: hidden;
+      }
 
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(to right, var(--red), var(--blue));
-    border-radius: 6px;
-    transition: width 0.3s;
-    width: 0%;
-  }
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(to right, var(--red), var(--blue));
+        border-radius: 6px;
+        transition: width 0.3s;
+        width: 0%;
+      }
 
-  .progress-label {
-    text-align: right;
-    font-size: 11px;
-    font-weight: 800;
-    color: rgba(255,255,255,0.42);
-    margin-top: 5px;
-  }
+      .progress-label {
+        text-align: right;
+        font-size: 11px;
+        font-weight: 800;
+        color: rgba(255, 255, 255, 0.42);
+        margin-top: 5px;
+      }
 
-  .form-body {
-    padding: 20px 16px 42px;
-    max-width: 520px;
-    margin: 0 auto;
-  }
+      .form-body {
+        padding: 20px 16px 42px;
+        max-width: 520px;
+        margin: 0 auto;
+      }
 
-  .section {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 21px 16px;
-    margin-bottom: 18px;
-    box-shadow: 0 12px 34px rgba(0,0,0,0.12);
-  }
+      .section {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 21px 16px;
+        margin-bottom: 18px;
+        box-shadow: 0 12px 34px rgba(0, 0, 0, 0.12);
+      }
 
-  .section-title {
-    font-family: 'Oswald', sans-serif;
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 3px;
-    color: #ff3535;
-    margin-bottom: 17px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
+      .section-title {
+        font-family: 'Oswald', sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 3px;
+        color: #ff3535;
+        margin-bottom: 17px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
 
-  .section-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: rgba(220,38,38,0.35);
-  }
+      .section-title::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: rgba(220, 38, 38, 0.35);
+      }
 
-  .section-help {
-    font-size: 12.5px;
-    font-weight: 700;
-    color: rgba(255,255,255,0.52);
-    margin: -4px 0 16px;
-    line-height: 1.55;
-  }
+      .section-help {
+        font-size: 12.5px;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.52);
+        margin: -4px 0 16px;
+        line-height: 1.55;
+      }
 
-  .q {
-    margin-bottom: 20px;
-  }
+      .q {
+        margin-bottom: 20px;
+      }
 
-  .q:last-child {
-    margin-bottom: 0;
-  }
+      .q:last-child {
+        margin-bottom: 0;
+      }
 
-  .q-label {
-    font-size: 15px;
-    font-weight: 900;
-    color: rgba(255,255,255,0.94);
-    margin-bottom: 9px;
-    line-height: 1.35;
-  }
+      .q-label {
+        font-size: 15px;
+        font-weight: 900;
+        color: rgba(255, 255, 255, 0.94);
+        margin-bottom: 9px;
+        line-height: 1.35;
+      }
 
-  .q-label .req {
-    color: var(--red);
-    margin-left: 2px;
-  }
+      .q-label .req {
+        color: var(--red);
+        margin-left: 2px;
+      }
 
-  .chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 9px;
-  }
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 9px;
+      }
 
-  .chip {
-    padding: 9px 16px;
-    border-radius: 999px;
-    border: 1.7px solid rgba(255,255,255,0.22);
-    background: rgba(255,255,255,0.06);
-    color: rgba(255,255,255,0.78);
-    font-family: 'Nunito', sans-serif;
-    font-size: 13.5px;
-    font-weight: 900;
-    cursor: pointer;
-    transition: all 0.15s;
-    user-select: none;
-    -webkit-user-select: none;
-  }
+      .chip {
+        padding: 9px 16px;
+        border-radius: 999px;
+        border: 1.7px solid rgba(255, 255, 255, 0.22);
+        background: rgba(255, 255, 255, 0.06);
+        color: rgba(255, 255, 255, 0.78);
+        font-family: 'Nunito', sans-serif;
+        font-size: 13.5px;
+        font-weight: 900;
+        cursor: pointer;
+        transition: all 0.15s;
+        user-select: none;
+        -webkit-user-select: none;
+      }
 
-  .chip.selected {
-    background: var(--blue);
-    border-color: var(--blue);
-    color: white;
-    transform: translateY(-1px);
-  }
+      .chip.selected {
+        background: var(--blue);
+        border-color: var(--blue);
+        color: white;
+        transform: translateY(-1px);
+      }
 
-  .chip.selected.red {
-    background: var(--red);
-    border-color: var(--red);
-  }
+      .chip.selected.red {
+        background: var(--red);
+        border-color: var(--red);
+      }
 
-  .chip.selected.green {
-    background: var(--green);
-    border-color: var(--green);
-  }
+      .chip.selected.green {
+        background: var(--green);
+        border-color: var(--green);
+      }
 
-  .chip.selected.gold {
-    background: var(--gold);
-    border-color: var(--gold);
-    color: #111827;
-  }
+      .chip.selected.gold {
+        background: var(--gold);
+        border-color: var(--gold);
+        color: #111827;
+      }
 
-  .scale {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-  }
+      .scale {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
 
-  .scale-btn {
-    min-width: 0;
-    height: 46px;
-    border-radius: 12px;
-    border: 1.7px solid rgba(255,255,255,0.22);
-    background: rgba(255,255,255,0.06);
-    color: rgba(255,255,255,0.62);
-    font-family: 'Oswald', sans-serif;
-    font-size: 19px;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.15s;
-    flex: 1;
-  }
+      .scale-btn {
+        min-width: 0;
+        height: 46px;
+        border-radius: 12px;
+        border: 1.7px solid rgba(255, 255, 255, 0.22);
+        background: rgba(255, 255, 255, 0.06);
+        color: rgba(255, 255, 255, 0.62);
+        font-family: 'Oswald', sans-serif;
+        font-size: 19px;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.15s;
+        flex: 1;
+      }
 
-  .scale-btn.selected {
-    background: var(--blue);
-    border-color: var(--blue);
-    color: white;
-  }
+      .scale-btn.selected {
+        background: var(--blue);
+        border-color: var(--blue);
+        color: white;
+      }
 
-  .scale-labels {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 5px;
-  }
+      .scale-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 5px;
+      }
 
-  .scale-labels span {
-    font-size: 10.5px;
-    font-weight: 900;
-    color: rgba(255,255,255,0.42);
-  }
+      .scale-labels span {
+        font-size: 10.5px;
+        font-weight: 900;
+        color: rgba(255, 255, 255, 0.42);
+      }
 
-  textarea,
-  input[type=text] {
-    width: 100%;
-    background: var(--card2);
-    border: 1.7px solid rgba(255,255,255,0.17);
-    border-radius: 13px;
-    color: white;
-    font-family: 'Nunito', sans-serif;
-    font-size: 14.5px;
-    font-weight: 700;
-    padding: 13px 14px;
-    outline: none;
-    resize: none;
-    transition: border-color 0.2s, background 0.2s;
-  }
+      textarea,
+      input[type='text'] {
+        width: 100%;
+        background: var(--card2);
+        border: 1.7px solid rgba(255, 255, 255, 0.17);
+        border-radius: 13px;
+        color: white;
+        font-family: 'Nunito', sans-serif;
+        font-size: 14.5px;
+        font-weight: 700;
+        padding: 13px 14px;
+        outline: none;
+        resize: none;
+        transition:
+          border-color 0.2s,
+          background 0.2s;
+      }
 
-  textarea:focus,
-  input[type=text]:focus {
-    border-color: var(--blue);
-    background: rgba(255,255,255,0.105);
-  }
+      textarea:focus,
+      input[type='text']:focus {
+        border-color: var(--blue);
+        background: rgba(255, 255, 255, 0.105);
+      }
 
-  textarea::placeholder,
-  input::placeholder {
-    color: rgba(255,255,255,0.32);
-  }
+      textarea::placeholder,
+      input::placeholder {
+        color: rgba(255, 255, 255, 0.32);
+      }
 
-  details.location-details {
-    border: 1px solid rgba(255,255,255,0.10);
-    background: rgba(255,255,255,0.035);
-    border-radius: 15px;
-    padding: 0;
-    margin-bottom: 10px;
-    overflow: hidden;
-  }
+      details.location-details {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.035);
+        border-radius: 15px;
+        padding: 0;
+        margin-bottom: 10px;
+        overflow: hidden;
+      }
 
-  details.location-details summary {
-    list-style: none;
-    cursor: pointer;
-    padding: 13px 14px;
-    font-weight: 900;
-    color: rgba(255,255,255,0.72);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+      details.location-details summary {
+        list-style: none;
+        cursor: pointer;
+        padding: 13px 14px;
+        font-weight: 900;
+        color: rgba(255, 255, 255, 0.72);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
 
-  details.location-details summary::-webkit-details-marker {
-    display: none;
-  }
+      details.location-details summary::-webkit-details-marker {
+        display: none;
+      }
 
-  .summary-status {
-    font-size: 11px;
-    color: rgba(255,255,255,0.38);
-  }
+      .summary-status {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.38);
+      }
 
-  .loc-body {
-    padding: 0 14px 14px;
-  }
+      .loc-body {
+        padding: 0 14px 14px;
+      }
 
-  .loc-mini-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 10px;
-    margin-top: 10px;
-  }
+      .loc-mini-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin-top: 10px;
+      }
 
-  .loc-group-title {
-    font-size: 11px;
-    color: rgba(255,255,255,0.42);
-    font-weight: 900;
-    margin-bottom: 6px;
-    letter-spacing: .3px;
-  }
+      .loc-group-title {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.42);
+        font-weight: 900;
+        margin-bottom: 6px;
+        letter-spacing: 0.3px;
+      }
 
-  .tiny-chip {
-    font-size: 12px;
-    padding: 7px 10px;
-  }
+      .tiny-chip {
+        font-size: 12px;
+        padding: 7px 10px;
+      }
 
-  .submit-btn {
-    width: 100%;
-    padding: 19px;
-    background: var(--red);
-    color: white;
-    border: none;
-    border-radius: 18px;
-    font-family: 'Nunito', sans-serif;
-    font-size: 20px;
-    font-weight: 900;
-    cursor: pointer;
-    letter-spacing: 0.5px;
-    box-shadow: 0 5px 24px rgba(220,38,38,0.42);
-    margin-top: 8px;
-  }
+      .submit-btn {
+        width: 100%;
+        padding: 19px;
+        background: var(--red);
+        color: white;
+        border: none;
+        border-radius: 18px;
+        font-family: 'Nunito', sans-serif;
+        font-size: 20px;
+        font-weight: 900;
+        cursor: pointer;
+        letter-spacing: 0.5px;
+        box-shadow: 0 5px 24px rgba(220, 38, 38, 0.42);
+        margin-top: 8px;
+      }
 
-  .submit-btn:disabled {
-    opacity: 0.65;
-    cursor: wait;
-  }
+      .submit-btn:disabled {
+        opacity: 0.65;
+        cursor: wait;
+      }
 
-  .submit-note {
-    text-align: center;
-    font-size: 12px;
-    font-weight: 700;
-    color: rgba(255,255,255,0.43);
-    margin-top: 11px;
-    line-height: 1.5;
-  }
+      .submit-note {
+        text-align: center;
+        font-size: 12px;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.43);
+        margin-top: 11px;
+        line-height: 1.5;
+      }
 
-  #thankyou {
-    display: none;
-    min-height: 100vh;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    text-align: center;
-    padding: 40px 24px;
-    background: linear-gradient(to bottom,#090f2b,#0d1b4f);
-  }
+      #thankyou {
+        display: none;
+        min-height: 100vh;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        text-align: center;
+        padding: 40px 24px;
+        background: linear-gradient(to bottom, #090f2b, #0d1b4f);
+      }
 
-  #thankyou h2 {
-    font-family: 'Oswald', sans-serif;
-    font-size: 30px;
-    letter-spacing: 1px;
-    margin-bottom: 12px;
-  }
+      #thankyou h2 {
+        font-family: 'Oswald', sans-serif;
+        font-size: 30px;
+        letter-spacing: 1px;
+        margin-bottom: 12px;
+      }
 
-  #thankyou p {
-    font-size: 15px;
-    font-weight: 700;
-    color: rgba(255,255,255,0.72);
-    line-height: 1.6;
-    max-width: 320px;
-  }
+      #thankyou p {
+        font-size: 15px;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.72);
+        line-height: 1.6;
+        max-width: 320px;
+      }
 
-  @media (min-width: 640px) {
-    .header h1 {
-      font-size: 40px;
-    }
+      @media (min-width: 640px) {
+        .header h1 {
+          font-size: 40px;
+        }
 
-    .form-body {
-      padding-left: 20px;
-      padding-right: 20px;
-    }
-  }
-</style>
-</head>
+        .form-body {
+          padding-left: 20px;
+          padding-right: 20px;
+        }
+      }
+    </style>
+  </head>
 
-<body>
+  <body>
+    <div id="main">
+      <div class="header">
+        <div class="header-stars" aria-hidden="true">
+          <span style="color: #dc2626">★</span><span style="color: white">★</span
+          ><span style="color: #1d4ed8">★</span> <span style="color: #dc2626">★</span
+          ><span style="color: white">★</span><span style="color: #1d4ed8">★</span>
+          <span style="color: #dc2626">★</span><span style="color: white">★</span
+          ><span style="color: #1d4ed8">★</span> <span style="color: #dc2626">★</span
+          ><span style="color: white">★</span><span style="color: #1d4ed8">★</span>
+          <span style="color: #dc2626">★</span><span style="color: white">★</span
+          ><span style="color: #1d4ed8">★</span> <span style="color: #dc2626">★</span
+          ><span style="color: white">★</span><span style="color: #1d4ed8">★</span>
+          <span style="color: #dc2626">★</span><span style="color: white">★</span
+          ><span style="color: #1d4ed8">★</span>
+        </div>
 
-<div id="main">
-  <div class="header">
-    <div class="header-stars" aria-hidden="true">
-      <span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span>
-      <span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span>
-      <span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span>
-      <span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span>
-      <span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span>
-      <span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span>
-      <span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span>
+        <div class="header-badge">BETA TESTER REPORT</div>
+        <h1>E-<span>Zone</span> Field Report</h1>
+        <p>Fill this out after testing E-Zone. Only answer what you actually tested.</p>
+        <div class="micro-note">Most testers finish in 3–5 minutes</div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-label" id="progressLabel">0% complete</div>
+      </div>
+
+      <div class="form-body">
+        <div class="section">
+          <div class="section-title">Your Info</div>
+          <div class="section-help">
+            This is only for invited beta testers. Skipped sections are fine if you did not test
+            that feature.
+          </div>
+
+          <div class="q">
+            <div class="q-label">Full name <span class="req">*</span></div>
+            <input type="text" id="q_name" placeholder="Jane Smith" oninput="updateProgress()" />
+          </div>
+
+          <div class="q">
+            <div class="q-label">County / polling location <span class="req">*</span></div>
+            <input
+              type="text"
+              id="q_location"
+              placeholder="Morris County, Troy Hills School"
+              oninput="updateProgress()"
+            />
+          </div>
+
+          <div class="q">
+            <div class="q-label">Device used</div>
+            <div class="chips" data-id="q_device">
+              <div class="chip" onclick="selectChip(this,'q_device')">iPhone</div>
+              <div class="chip" onclick="selectChip(this,'q_device')">Android</div>
+              <div class="chip" onclick="selectChip(this,'q_device')">Tablet</div>
+              <div class="chip" onclick="selectChip(this,'q_device')">Other</div>
+            </div>
+          </div>
+
+          <div class="q">
+            <div class="q-label">Phone / tablet model</div>
+            <input
+              type="text"
+              id="q_phone_model"
+              placeholder="Example: iPhone 12, iPhone 15 Pro, Samsung Galaxy S23, iPad"
+              oninput="updateProgress()"
+            />
+          </div>
+
+          <div class="q">
+            <div class="q-label">Cell signal at your test location <span class="req">*</span></div>
+            <div class="chips" data-id="q_signal">
+              <div class="chip" onclick="selectChip(this,'q_signal')">Strong</div>
+              <div class="chip" onclick="selectChip(this,'q_signal')">Weak</div>
+              <div class="chip" onclick="selectChip(this,'q_signal')">No signal</div>
+              <div class="chip" onclick="selectChip(this,'q_signal')">Not sure</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Setup &amp; GPS</div>
+
+          <div class="q">
+            <div class="q-label">GPS found my location quickly</div>
+            <div class="scale" data-id="q_gps_lock">
+              <div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">1</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">2</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">3</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">4</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">5</div>
+            </div>
+            <div class="scale-labels"><span>Didn't work</span><span>Very quick</span></div>
+          </div>
+
+          <div class="q">
+            <div class="q-label">Satellite imagery loaded correctly</div>
+            <div class="scale" data-id="q_map_load">
+              <div class="scale-btn" onclick="selectScale(this,'q_map_load')">1</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_map_load')">2</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_map_load')">3</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_map_load')">4</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_map_load')">5</div>
+            </div>
+            <div class="scale-labels"><span>Didn't load</span><span>Loaded great</span></div>
+          </div>
+
+          <div class="q">
+            <div class="q-label">Setting the 200-foot zone was easy</div>
+            <div class="scale" data-id="q_zone_set">
+              <div class="scale-btn" onclick="selectScale(this,'q_zone_set')">1</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_zone_set')">2</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_zone_set')">3</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_zone_set')">4</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_zone_set')">5</div>
+            </div>
+            <div class="scale-labels"><span>Very difficult</span><span>Easy</span></div>
+          </div>
+
+          <div class="q">
+            <div class="q-label">The 200-foot alert happened</div>
+            <div class="chips" data-id="q_alert">
+              <div class="chip" onclick="selectChip(this,'q_alert')">Beeped</div>
+              <div class="chip" onclick="selectChip(this,'q_alert')">Vibrated</div>
+              <div class="chip" onclick="selectChip(this,'q_alert')">Both</div>
+              <div class="chip" onclick="selectChip(this,'q_alert')">Didn't notice</div>
+              <div class="chip" onclick="selectChip(this,'q_alert')">Didn't test</div>
+            </div>
+          </div>
+
+          <div class="q">
+            <div class="q-label">Map tiles loaded fully or showed grey boxes?</div>
+            <div class="chips" data-id="q_tiles">
+              <div class="chip" onclick="selectChip(this,'q_tiles')">Fully loaded</div>
+              <div class="chip" onclick="selectChip(this,'q_tiles')">Some grey areas</div>
+              <div class="chip" onclick="selectChip(this,'q_tiles')">Mostly grey</div>
+              <div class="chip" onclick="selectChip(this,'q_tiles')">Didn't test</div>
+            </div>
+          </div>
+
+          <div class="q">
+            <div class="q-label">GPS or map notes</div>
+            <textarea
+              id="q_gps_notes"
+              rows="2"
+              placeholder="Any drift, wrong location, grey map tiles, accuracy problems..."
+              oninput="updateProgress()"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Walking the Zone</div>
+
+          <div class="q">
+            <div class="q-label">Zone stayed in place while walking</div>
+            <div class="chips" data-id="q_zone_drift">
+              <div class="chip" onclick="selectChip(this,'q_zone_drift')">Stayed put</div>
+              <div class="chip" onclick="selectChip(this,'q_zone_drift')">Slight drift</div>
+              <div class="chip" onclick="selectChip(this,'q_zone_drift')">Moved a lot</div>
+              <div class="chip" onclick="selectChip(this,'q_zone_drift')">Didn't test</div>
+            </div>
+          </div>
+
+          <div class="q">
+            <div class="q-label">Vibration / alert at the boundary was useful</div>
+            <div class="chips" data-id="q_boundary_feedback">
+              <div class="chip" onclick="selectChip(this,'q_boundary_feedback')">Yes</div>
+              <div class="chip" onclick="selectChip(this,'q_boundary_feedback')">Somewhat</div>
+              <div class="chip" onclick="selectChip(this,'q_boundary_feedback')">No</div>
+              <div class="chip" onclick="selectChip(this,'q_boundary_feedback')">
+                Didn't feel/hear it
+              </div>
+            </div>
+          </div>
+
+          <div class="q">
+            <div class="q-label">Obstacles nearby?</div>
+            <div class="chips" data-id="q_obstacles">
+              <div class="chip" onclick="selectChip(this,'q_obstacles')">Building</div>
+              <div class="chip" onclick="selectChip(this,'q_obstacles')">Trees</div>
+              <div class="chip" onclick="selectChip(this,'q_obstacles')">Overhang</div>
+              <div class="chip" onclick="selectChip(this,'q_obstacles')">Open area</div>
+              <div class="chip" onclick="selectChip(this,'q_obstacles')">Not sure</div>
+            </div>
+          </div>
+
+          <div class="q">
+            <div class="q-label">Describe the test spot briefly</div>
+            <textarea
+              id="q_location_notes"
+              rows="2"
+              placeholder="Front door, side entrance, parking lot, corner building, trees nearby..."
+              oninput="updateProgress()"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Incident Reporting</div>
+          <div class="section-help">
+            Skip this section if you did not test incident/photo reporting.
+          </div>
+
+          <div class="q">
+            <div class="q-label">Dropping an incident pin felt intuitive</div>
+            <div class="scale" data-id="q_pin">
+              <div class="scale-btn" onclick="selectScale(this,'q_pin')">1</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_pin')">2</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_pin')">3</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_pin')">4</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_pin')">5</div>
+            </div>
+            <div class="scale-labels"><span>Confusing</span><span>Very intuitive</span></div>
+          </div>
+
+          <div class="q">
+            <div class="q-label">Camera/photo step</div>
+            <div class="chips" data-id="q_camera">
+              <div class="chip" onclick="selectChip(this,'q_camera')">Worked great</div>
+              <div class="chip" onclick="selectChip(this,'q_camera')">Some trouble</div>
+              <div class="chip" onclick="selectChip(this,'q_camera')">Didn't work</div>
+              <div class="chip" onclick="selectChip(this,'q_camera')">Didn't test</div>
+            </div>
+          </div>
+
+          <div class="q">
+            <div class="q-label">BOE email / photo attachment step</div>
+            <div class="chips" data-id="q_email_step">
+              <div class="chip" onclick="selectChip(this,'q_email_step')">Easy</div>
+              <div class="chip" onclick="selectChip(this,'q_email_step')">Worked but confusing</div>
+              <div class="chip" onclick="selectChip(this,'q_email_step')">
+                Couldn't attach photo
+              </div>
+              <div class="chip" onclick="selectChip(this,'q_email_step')">Email didn't open</div>
+              <div class="chip" onclick="selectChip(this,'q_email_step')">Didn't test</div>
+            </div>
+          </div>
+
+          <div class="q">
+            <div class="q-label">Incident reporting notes</div>
+            <textarea
+              id="q_incident_notes"
+              rows="2"
+              placeholder="Any issues with photos, email, pin drop, or saving the report..."
+              oninput="updateProgress()"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Per-Location Log</div>
+          <div class="section-help">
+            Use this only if you tested more than one location. Open only the locations you need.
+          </div>
+          <div id="locationContainer"></div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Stability</div>
+
+          <div class="q">
+            <div class="q-label">App crashed or froze</div>
+            <div class="chips" data-id="q_crash">
+              <div class="chip selected green" onclick="selectChip(this,'q_crash')">
+                No — ran fine
+              </div>
+              <div class="chip" onclick="selectChip(this,'q_crash')">Froze once</div>
+              <div class="chip" onclick="selectChip(this,'q_crash')">Crashed once</div>
+              <div class="chip" onclick="selectChip(this,'q_crash')">Multiple times</div>
+            </div>
+          </div>
+
+          <div class="q">
+            <div class="q-label">Battery drain</div>
+            <div class="chips" data-id="q_battery">
+              <div class="chip" onclick="selectChip(this,'q_battery')">Didn't notice</div>
+              <div class="chip" onclick="selectChip(this,'q_battery')">Slight</div>
+              <div class="chip" onclick="selectChip(this,'q_battery')">Moderate</div>
+              <div class="chip" onclick="selectChip(this,'q_battery')">Heavy</div>
+            </div>
+          </div>
+
+          <div class="q">
+            <div class="q-label">Phone became warm</div>
+            <div class="chips" data-id="q_heat">
+              <div class="chip" onclick="selectChip(this,'q_heat')">No</div>
+              <div class="chip" onclick="selectChip(this,'q_heat')">Slightly warm</div>
+              <div class="chip" onclick="selectChip(this,'q_heat')">Very warm</div>
+              <div class="chip" onclick="selectChip(this,'q_heat')">Not sure</div>
+            </div>
+          </div>
+
+          <div class="q">
+            <div class="q-label">If it froze/crashed — what were you doing?</div>
+            <textarea
+              id="q_crash_notes"
+              rows="2"
+              placeholder="Setting the zone, taking a photo, opening email, walking boundary..."
+              oninput="updateProgress()"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Look &amp; Feel</div>
+
+          <div class="q">
+            <div class="q-label">App looked professional and trustworthy</div>
+            <div class="scale" data-id="q_professional">
+              <div class="scale-btn" onclick="selectScale(this,'q_professional')">1</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_professional')">2</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_professional')">3</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_professional')">4</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_professional')">5</div>
+            </div>
+            <div class="scale-labels"><span>Not at all</span><span>Very much</span></div>
+          </div>
+
+          <div class="q">
+            <div class="q-label">Text was readable in sunlight / outdoors</div>
+            <div class="scale" data-id="q_readability">
+              <div class="scale-btn" onclick="selectScale(this,'q_readability')">1</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_readability')">2</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_readability')">3</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_readability')">4</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_readability')">5</div>
+            </div>
+            <div class="scale-labels"><span>Hard to read</span><span>Crystal clear</span></div>
+          </div>
+
+          <div class="q">
+            <div class="q-label">Map/buttons were easy to see in direct sunlight</div>
+            <div class="scale" data-id="q_sun_map">
+              <div class="scale-btn" onclick="selectScale(this,'q_sun_map')">1</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_sun_map')">2</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_sun_map')">3</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_sun_map')">4</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_sun_map')">5</div>
+            </div>
+            <div class="scale-labels"><span>Washed out</span><span>Easy to see</span></div>
+          </div>
+
+          <div class="q">
+            <div class="q-label">Buttons were easy to tap</div>
+            <div class="scale" data-id="q_buttons">
+              <div class="scale-btn" onclick="selectScale(this,'q_buttons')">1</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_buttons')">2</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_buttons')">3</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_buttons')">4</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_buttons')">5</div>
+            </div>
+            <div class="scale-labels"><span>Too small/hard</span><span>Easy</span></div>
+          </div>
+
+          <div class="q">
+            <div class="q-label">Any step or button confused you?</div>
+            <div class="chips" data-id="q_confused">
+              <div class="chip" onclick="selectChip(this,'q_confused')">Nothing confused me</div>
+              <div class="chip" onclick="selectChip(this,'q_confused')">Instructions</div>
+              <div class="chip" onclick="selectChip(this,'q_confused')">Setting zone</div>
+              <div class="chip" onclick="selectChip(this,'q_confused')">Boundary alert</div>
+              <div class="chip" onclick="selectChip(this,'q_confused')">Incident report</div>
+              <div class="chip" onclick="selectChip(this,'q_confused')">Email step</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Overall</div>
+
+          <div class="q">
+            <div class="q-label">What worked really well?</div>
+            <textarea
+              id="q_good"
+              rows="3"
+              placeholder="What was smooth, useful, clear, or impressive?"
+              oninput="updateProgress()"
+            ></textarea>
+          </div>
+
+          <div class="q">
+            <div class="q-label">What was frustrating or confusing?</div>
+            <textarea
+              id="q_bad"
+              rows="3"
+              placeholder="Be honest — this is how the app gets fixed."
+              oninput="updateProgress()"
+            ></textarea>
+          </div>
+
+          <div class="q">
+            <div class="q-label">Anything missing from the app?</div>
+            <textarea
+              id="q_missing"
+              rows="2"
+              placeholder="Features, instructions, warnings, or information you needed but didn't have..."
+              oninput="updateProgress()"
+            ></textarea>
+          </div>
+
+          <div class="q">
+            <div class="q-label">
+              Would you feel confident using E-Zone on Election Day? <span class="req">*</span>
+            </div>
+            <div class="chips" data-id="q_confident">
+              <div class="chip" onclick="selectChip(this,'q_confident')">Yes, absolutely</div>
+              <div class="chip" onclick="selectChip(this,'q_confident')">Yes, with practice</div>
+              <div class="chip" onclick="selectChip(this,'q_confident')">Not yet</div>
+              <div class="chip" onclick="selectChip(this,'q_confident')">No</div>
+            </div>
+          </div>
+
+          <div class="q">
+            <div class="q-label">Would you test a future version?</div>
+            <div class="chips" data-id="q_future_test">
+              <div class="chip" onclick="selectChip(this,'q_future_test')">Yes</div>
+              <div class="chip" onclick="selectChip(this,'q_future_test')">Maybe</div>
+              <div class="chip" onclick="selectChip(this,'q_future_test')">No</div>
+            </div>
+          </div>
+
+          <div class="q">
+            <div class="q-label">Overall rating <span class="req">*</span></div>
+            <div class="scale" data-id="q_overall">
+              <div class="scale-btn" onclick="selectScale(this,'q_overall')">1</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_overall')">2</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_overall')">3</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_overall')">4</div>
+              <div class="scale-btn" onclick="selectScale(this,'q_overall')">5</div>
+            </div>
+            <div class="scale-labels">
+              <span>Needs major work</span><span>Election Day ready</span>
+            </div>
+          </div>
+        </div>
+
+        <button class="submit-btn" onclick="submitForm()">Submit Beta Report ★</button>
+        <div class="submit-note">
+          Tapping submit sends your beta report automatically.<br />No email window should open.
+        </div>
+      </div>
     </div>
 
-    <div class="header-badge">BETA TESTER REPORT</div>
-    <h1>E-<span>Zone</span> Field Report</h1>
-    <p>Fill this out after testing E-Zone. Only answer what you actually tested.</p>
-    <div class="micro-note">Most testers finish in 3–5 minutes</div>
-  </div>
-
-  <div class="progress-wrap">
-    <div class="progress-bar">
-      <div class="progress-fill" id="progressFill"></div>
-    </div>
-    <div class="progress-label" id="progressLabel">0% complete</div>
-  </div>
-
-  <div class="form-body">
-
-    <div class="section">
-      <div class="section-title">Your Info</div>
-      <div class="section-help">This is only for invited beta testers. Skipped sections are fine if you did not test that feature.</div>
-
-      <div class="q">
-        <div class="q-label">Full name <span class="req">*</span></div>
-        <input type="text" id="q_name" placeholder="Jane Smith" oninput="updateProgress()"/>
-      </div>
-
-      <div class="q">
-        <div class="q-label">County / polling location <span class="req">*</span></div>
-        <input type="text" id="q_location" placeholder="Morris County, Troy Hills School" oninput="updateProgress()"/>
-      </div>
-
-      <div class="q">
-        <div class="q-label">Device used</div>
-        <div class="chips" data-id="q_device">
-          <div class="chip" onclick="selectChip(this,'q_device')">iPhone</div>
-          <div class="chip" onclick="selectChip(this,'q_device')">Android</div>
-          <div class="chip" onclick="selectChip(this,'q_device')">Tablet</div>
-          <div class="chip" onclick="selectChip(this,'q_device')">Other</div>
-        </div>
-      </div>
-
-      <div class="q">
-        <div class="q-label">Phone / tablet model</div>
-        <input type="text" id="q_phone_model" placeholder="Example: iPhone 12, iPhone 15 Pro, Samsung Galaxy S23, iPad" oninput="updateProgress()"/>
-      </div>
-
-      <div class="q">
-        <div class="q-label">Cell signal at your test location <span class="req">*</span></div>
-        <div class="chips" data-id="q_signal">
-          <div class="chip" onclick="selectChip(this,'q_signal')">Strong</div>
-          <div class="chip" onclick="selectChip(this,'q_signal')">Weak</div>
-          <div class="chip" onclick="selectChip(this,'q_signal')">No signal</div>
-          <div class="chip" onclick="selectChip(this,'q_signal')">Not sure</div>
-        </div>
+    <div id="thankyou">
+      <div style="font-size: 66px; margin-bottom: 20px">🇺🇸</div>
+      <h2>Thank You!</h2>
+      <p>Your E-Zone beta report has been submitted. Thank you for testing.</p>
+      <div style="margin-top: 24px; display: flex; gap: 8px; justify-content: center">
+        <span style="color: #dc2626; font-size: 20px">★</span>
+        <span style="color: white; font-size: 20px">★</span>
+        <span style="color: #1d4ed8; font-size: 20px">★</span>
+        <span style="color: #dc2626; font-size: 20px">★</span>
+        <span style="color: white; font-size: 20px">★</span>
       </div>
     </div>
 
-    <div class="section">
-      <div class="section-title">Setup &amp; GPS</div>
+    <script>
+      const LOCATION_COUNT = 5;
+      const SCRIPT_URL =
+        'https://script.google.com/macros/s/AKfycbzK9yOGCF0ljhEbE91an7PwktICAOUY_F2Q2wbZHCuE7vSu6rq5ts7T8XwnlKi_fgyclA/exec';
+      // Browser-visible routing value for the current Apps Script contract; not an authentication secret.
+      const CLIENT_ROUTING_TOKEN = 'ezone-2026-secret-change-this';
 
-      <div class="q">
-        <div class="q-label">GPS found my location quickly</div>
-        <div class="scale" data-id="q_gps_lock">
-          <div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">1</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">2</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">3</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">4</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">5</div>
-        </div>
-        <div class="scale-labels"><span>Didn't work</span><span>Very quick</span></div>
-      </div>
+      function buildLocationLog() {
+        const container = document.getElementById('locationContainer');
+        let html = '';
 
-      <div class="q">
-        <div class="q-label">Satellite imagery loaded correctly</div>
-        <div class="scale" data-id="q_map_load">
-          <div class="scale-btn" onclick="selectScale(this,'q_map_load')">1</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_map_load')">2</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_map_load')">3</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_map_load')">4</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_map_load')">5</div>
-        </div>
-        <div class="scale-labels"><span>Didn't load</span><span>Loaded great</span></div>
-      </div>
-
-      <div class="q">
-        <div class="q-label">Setting the 200-foot zone was easy</div>
-        <div class="scale" data-id="q_zone_set">
-          <div class="scale-btn" onclick="selectScale(this,'q_zone_set')">1</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_zone_set')">2</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_zone_set')">3</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_zone_set')">4</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_zone_set')">5</div>
-        </div>
-        <div class="scale-labels"><span>Very difficult</span><span>Easy</span></div>
-      </div>
-
-      <div class="q">
-        <div class="q-label">The 200-foot alert happened</div>
-        <div class="chips" data-id="q_alert">
-          <div class="chip" onclick="selectChip(this,'q_alert')">Beeped</div>
-          <div class="chip" onclick="selectChip(this,'q_alert')">Vibrated</div>
-          <div class="chip" onclick="selectChip(this,'q_alert')">Both</div>
-          <div class="chip" onclick="selectChip(this,'q_alert')">Didn't notice</div>
-          <div class="chip" onclick="selectChip(this,'q_alert')">Didn't test</div>
-        </div>
-      </div>
-
-      <div class="q">
-        <div class="q-label">Map tiles loaded fully or showed grey boxes?</div>
-        <div class="chips" data-id="q_tiles">
-          <div class="chip" onclick="selectChip(this,'q_tiles')">Fully loaded</div>
-          <div class="chip" onclick="selectChip(this,'q_tiles')">Some grey areas</div>
-          <div class="chip" onclick="selectChip(this,'q_tiles')">Mostly grey</div>
-          <div class="chip" onclick="selectChip(this,'q_tiles')">Didn't test</div>
-        </div>
-      </div>
-
-      <div class="q">
-        <div class="q-label">GPS or map notes</div>
-        <textarea id="q_gps_notes" rows="2" placeholder="Any drift, wrong location, grey map tiles, accuracy problems..." oninput="updateProgress()"></textarea>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-title">Walking the Zone</div>
-
-      <div class="q">
-        <div class="q-label">Zone stayed in place while walking</div>
-        <div class="chips" data-id="q_zone_drift">
-          <div class="chip" onclick="selectChip(this,'q_zone_drift')">Stayed put</div>
-          <div class="chip" onclick="selectChip(this,'q_zone_drift')">Slight drift</div>
-          <div class="chip" onclick="selectChip(this,'q_zone_drift')">Moved a lot</div>
-          <div class="chip" onclick="selectChip(this,'q_zone_drift')">Didn't test</div>
-        </div>
-      </div>
-
-      <div class="q">
-        <div class="q-label">Vibration / alert at the boundary was useful</div>
-        <div class="chips" data-id="q_boundary_feedback">
-          <div class="chip" onclick="selectChip(this,'q_boundary_feedback')">Yes</div>
-          <div class="chip" onclick="selectChip(this,'q_boundary_feedback')">Somewhat</div>
-          <div class="chip" onclick="selectChip(this,'q_boundary_feedback')">No</div>
-          <div class="chip" onclick="selectChip(this,'q_boundary_feedback')">Didn't feel/hear it</div>
-        </div>
-      </div>
-
-      <div class="q">
-        <div class="q-label">Obstacles nearby?</div>
-        <div class="chips" data-id="q_obstacles">
-          <div class="chip" onclick="selectChip(this,'q_obstacles')">Building</div>
-          <div class="chip" onclick="selectChip(this,'q_obstacles')">Trees</div>
-          <div class="chip" onclick="selectChip(this,'q_obstacles')">Overhang</div>
-          <div class="chip" onclick="selectChip(this,'q_obstacles')">Open area</div>
-          <div class="chip" onclick="selectChip(this,'q_obstacles')">Not sure</div>
-        </div>
-      </div>
-
-      <div class="q">
-        <div class="q-label">Describe the test spot briefly</div>
-        <textarea id="q_location_notes" rows="2" placeholder="Front door, side entrance, parking lot, corner building, trees nearby..." oninput="updateProgress()"></textarea>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-title">Incident Reporting</div>
-      <div class="section-help">Skip this section if you did not test incident/photo reporting.</div>
-
-      <div class="q">
-        <div class="q-label">Dropping an incident pin felt intuitive</div>
-        <div class="scale" data-id="q_pin">
-          <div class="scale-btn" onclick="selectScale(this,'q_pin')">1</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_pin')">2</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_pin')">3</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_pin')">4</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_pin')">5</div>
-        </div>
-        <div class="scale-labels"><span>Confusing</span><span>Very intuitive</span></div>
-      </div>
-
-      <div class="q">
-        <div class="q-label">Camera/photo step</div>
-        <div class="chips" data-id="q_camera">
-          <div class="chip" onclick="selectChip(this,'q_camera')">Worked great</div>
-          <div class="chip" onclick="selectChip(this,'q_camera')">Some trouble</div>
-          <div class="chip" onclick="selectChip(this,'q_camera')">Didn't work</div>
-          <div class="chip" onclick="selectChip(this,'q_camera')">Didn't test</div>
-        </div>
-      </div>
-
-      <div class="q">
-        <div class="q-label">BOE email / photo attachment step</div>
-        <div class="chips" data-id="q_email_step">
-          <div class="chip" onclick="selectChip(this,'q_email_step')">Easy</div>
-          <div class="chip" onclick="selectChip(this,'q_email_step')">Worked but confusing</div>
-          <div class="chip" onclick="selectChip(this,'q_email_step')">Couldn't attach photo</div>
-          <div class="chip" onclick="selectChip(this,'q_email_step')">Email didn't open</div>
-          <div class="chip" onclick="selectChip(this,'q_email_step')">Didn't test</div>
-        </div>
-      </div>
-
-      <div class="q">
-        <div class="q-label">Incident reporting notes</div>
-        <textarea id="q_incident_notes" rows="2" placeholder="Any issues with photos, email, pin drop, or saving the report..." oninput="updateProgress()"></textarea>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-title">Per-Location Log</div>
-      <div class="section-help">Use this only if you tested more than one location. Open only the locations you need.</div>
-      <div id="locationContainer"></div>
-    </div>
-
-    <div class="section">
-      <div class="section-title">Stability</div>
-
-      <div class="q">
-        <div class="q-label">App crashed or froze</div>
-        <div class="chips" data-id="q_crash">
-          <div class="chip selected green" onclick="selectChip(this,'q_crash')">No — ran fine</div>
-          <div class="chip" onclick="selectChip(this,'q_crash')">Froze once</div>
-          <div class="chip" onclick="selectChip(this,'q_crash')">Crashed once</div>
-          <div class="chip" onclick="selectChip(this,'q_crash')">Multiple times</div>
-        </div>
-      </div>
-
-      <div class="q">
-        <div class="q-label">Battery drain</div>
-        <div class="chips" data-id="q_battery">
-          <div class="chip" onclick="selectChip(this,'q_battery')">Didn't notice</div>
-          <div class="chip" onclick="selectChip(this,'q_battery')">Slight</div>
-          <div class="chip" onclick="selectChip(this,'q_battery')">Moderate</div>
-          <div class="chip" onclick="selectChip(this,'q_battery')">Heavy</div>
-        </div>
-      </div>
-
-      <div class="q">
-        <div class="q-label">Phone became warm</div>
-        <div class="chips" data-id="q_heat">
-          <div class="chip" onclick="selectChip(this,'q_heat')">No</div>
-          <div class="chip" onclick="selectChip(this,'q_heat')">Slightly warm</div>
-          <div class="chip" onclick="selectChip(this,'q_heat')">Very warm</div>
-          <div class="chip" onclick="selectChip(this,'q_heat')">Not sure</div>
-        </div>
-      </div>
-
-      <div class="q">
-        <div class="q-label">If it froze/crashed — what were you doing?</div>
-        <textarea id="q_crash_notes" rows="2" placeholder="Setting the zone, taking a photo, opening email, walking boundary..." oninput="updateProgress()"></textarea>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-title">Look &amp; Feel</div>
-
-      <div class="q">
-        <div class="q-label">App looked professional and trustworthy</div>
-        <div class="scale" data-id="q_professional">
-          <div class="scale-btn" onclick="selectScale(this,'q_professional')">1</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_professional')">2</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_professional')">3</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_professional')">4</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_professional')">5</div>
-        </div>
-        <div class="scale-labels"><span>Not at all</span><span>Very much</span></div>
-      </div>
-
-      <div class="q">
-        <div class="q-label">Text was readable in sunlight / outdoors</div>
-        <div class="scale" data-id="q_readability">
-          <div class="scale-btn" onclick="selectScale(this,'q_readability')">1</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_readability')">2</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_readability')">3</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_readability')">4</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_readability')">5</div>
-        </div>
-        <div class="scale-labels"><span>Hard to read</span><span>Crystal clear</span></div>
-      </div>
-
-      <div class="q">
-        <div class="q-label">Map/buttons were easy to see in direct sunlight</div>
-        <div class="scale" data-id="q_sun_map">
-          <div class="scale-btn" onclick="selectScale(this,'q_sun_map')">1</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_sun_map')">2</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_sun_map')">3</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_sun_map')">4</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_sun_map')">5</div>
-        </div>
-        <div class="scale-labels"><span>Washed out</span><span>Easy to see</span></div>
-      </div>
-
-      <div class="q">
-        <div class="q-label">Buttons were easy to tap</div>
-        <div class="scale" data-id="q_buttons">
-          <div class="scale-btn" onclick="selectScale(this,'q_buttons')">1</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_buttons')">2</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_buttons')">3</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_buttons')">4</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_buttons')">5</div>
-        </div>
-        <div class="scale-labels"><span>Too small/hard</span><span>Easy</span></div>
-      </div>
-
-      <div class="q">
-        <div class="q-label">Any step or button confused you?</div>
-        <div class="chips" data-id="q_confused">
-          <div class="chip" onclick="selectChip(this,'q_confused')">Nothing confused me</div>
-          <div class="chip" onclick="selectChip(this,'q_confused')">Instructions</div>
-          <div class="chip" onclick="selectChip(this,'q_confused')">Setting zone</div>
-          <div class="chip" onclick="selectChip(this,'q_confused')">Boundary alert</div>
-          <div class="chip" onclick="selectChip(this,'q_confused')">Incident report</div>
-          <div class="chip" onclick="selectChip(this,'q_confused')">Email step</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-title">Overall</div>
-
-      <div class="q">
-        <div class="q-label">What worked really well?</div>
-        <textarea id="q_good" rows="3" placeholder="What was smooth, useful, clear, or impressive?" oninput="updateProgress()"></textarea>
-      </div>
-
-      <div class="q">
-        <div class="q-label">What was frustrating or confusing?</div>
-        <textarea id="q_bad" rows="3" placeholder="Be honest — this is how the app gets fixed." oninput="updateProgress()"></textarea>
-      </div>
-
-      <div class="q">
-        <div class="q-label">Anything missing from the app?</div>
-        <textarea id="q_missing" rows="2" placeholder="Features, instructions, warnings, or information you needed but didn't have..." oninput="updateProgress()"></textarea>
-      </div>
-
-      <div class="q">
-        <div class="q-label">Would you feel confident using E-Zone on Election Day? <span class="req">*</span></div>
-        <div class="chips" data-id="q_confident">
-          <div class="chip" onclick="selectChip(this,'q_confident')">Yes, absolutely</div>
-          <div class="chip" onclick="selectChip(this,'q_confident')">Yes, with practice</div>
-          <div class="chip" onclick="selectChip(this,'q_confident')">Not yet</div>
-          <div class="chip" onclick="selectChip(this,'q_confident')">No</div>
-        </div>
-      </div>
-
-      <div class="q">
-        <div class="q-label">Would you test a future version?</div>
-        <div class="chips" data-id="q_future_test">
-          <div class="chip" onclick="selectChip(this,'q_future_test')">Yes</div>
-          <div class="chip" onclick="selectChip(this,'q_future_test')">Maybe</div>
-          <div class="chip" onclick="selectChip(this,'q_future_test')">No</div>
-        </div>
-      </div>
-
-      <div class="q">
-        <div class="q-label">Overall rating <span class="req">*</span></div>
-        <div class="scale" data-id="q_overall">
-          <div class="scale-btn" onclick="selectScale(this,'q_overall')">1</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_overall')">2</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_overall')">3</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_overall')">4</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_overall')">5</div>
-        </div>
-        <div class="scale-labels"><span>Needs major work</span><span>Election Day ready</span></div>
-      </div>
-    </div>
-
-    <button class="submit-btn" onclick="submitForm()">Submit Beta Report ★</button>
-    <div class="submit-note">Tapping submit sends your beta report automatically.<br/>No email window should open.</div>
-
-  </div>
-</div>
-
-<div id="thankyou">
-  <div style="font-size:66px;margin-bottom:20px;">🇺🇸</div>
-  <h2>Thank You!</h2>
-  <p>Your E-Zone beta report has been submitted. Thank you for testing.</p>
-  <div style="margin-top:24px;display:flex;gap:8px;justify-content:center;">
-    <span style="color:#dc2626;font-size:20px;">★</span>
-    <span style="color:white;font-size:20px;">★</span>
-    <span style="color:#1d4ed8;font-size:20px;">★</span>
-    <span style="color:#dc2626;font-size:20px;">★</span>
-    <span style="color:white;font-size:20px;">★</span>
-  </div>
-</div>
-
-<script>
-const LOCATION_COUNT = 5;
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzK9yOGCF0ljhEbE91an7PwktICAOUY_F2Q2wbZHCuE7vSu6rq5ts7T8XwnlKi_fgyclA/exec';
-const SECRET_TOKEN = 'ezone-2026-secret-change-this';
-
-function buildLocationLog() {
-  const container = document.getElementById('locationContainer');
-  let html = '';
-
-  for (let i = 1; i <= LOCATION_COUNT; i++) {
-    html += `
+        for (let i = 1; i <= LOCATION_COUNT; i++) {
+          html += `
       <details class="location-details" ${i === 1 ? 'open' : ''}>
         <summary>Location ${i}<span class="summary-status" id="loc_${i}_status">optional</span></summary>
         <div class="loc-body">
@@ -886,269 +962,282 @@ function buildLocationLog() {
           </div>
         </div>
       </details>`;
-  }
+        }
 
-  container.innerHTML = html;
-}
+        container.innerHTML = html;
+      }
 
-function selectChip(el, groupId) {
-  const group = document.querySelector('[data-id="' + groupId + '"]');
-  if (!group) return;
+      function selectChip(el, groupId) {
+        const group = document.querySelector('[data-id="' + groupId + '"]');
+        if (!group) return;
 
-  group.querySelectorAll('.chip').forEach(c => {
-    c.classList.remove('selected', 'red', 'green', 'gold');
-  });
+        group.querySelectorAll('.chip').forEach((c) => {
+          c.classList.remove('selected', 'red', 'green', 'gold');
+        });
 
-  el.classList.add('selected');
+        el.classList.add('selected');
 
-  const txt = el.textContent.trim().toLowerCase();
+        const txt = el.textContent.trim().toLowerCase();
 
-  if (
-    txt.includes('no') ||
-    txt.includes('not yet') ||
-    txt.includes('crashed') ||
-    txt.includes("didn't work") ||
-    txt.includes("didn't feel") ||
-    txt.includes('multiple') ||
-    txt.includes('heavy') ||
-    txt.includes('way off') ||
-    txt.includes('mostly grey') ||
-    txt.includes("couldn't")
-  ) {
-    el.classList.add('red');
-  } else if (
-    txt.includes('yes') ||
-    txt.includes('easy') ||
-    txt.includes('strong') ||
-    txt.includes('worked great') ||
-    txt.includes('ran fine') ||
-    txt.includes('fully') ||
-    txt.includes('stayed put') ||
-    txt.includes('map ✓') ||
-    txt.includes('gps ✓') ||
-    txt.includes('nothing confused')
-  ) {
-    el.classList.add('green');
-  } else if (
-    txt.includes('some') ||
-    txt.includes('slight') ||
-    txt.includes('maybe') ||
-    txt.includes('partial') ||
-    txt.includes('warm') ||
-    txt.includes('practice') ||
-    txt.includes('not sure') ||
-    txt.includes('weak')
-  ) {
-    el.classList.add('gold');
-  }
+        if (
+          txt.includes('no') ||
+          txt.includes('not yet') ||
+          txt.includes('crashed') ||
+          txt.includes("didn't work") ||
+          txt.includes("didn't feel") ||
+          txt.includes('multiple') ||
+          txt.includes('heavy') ||
+          txt.includes('way off') ||
+          txt.includes('mostly grey') ||
+          txt.includes("couldn't")
+        ) {
+          el.classList.add('red');
+        } else if (
+          txt.includes('yes') ||
+          txt.includes('easy') ||
+          txt.includes('strong') ||
+          txt.includes('worked great') ||
+          txt.includes('ran fine') ||
+          txt.includes('fully') ||
+          txt.includes('stayed put') ||
+          txt.includes('map ✓') ||
+          txt.includes('gps ✓') ||
+          txt.includes('nothing confused')
+        ) {
+          el.classList.add('green');
+        } else if (
+          txt.includes('some') ||
+          txt.includes('slight') ||
+          txt.includes('maybe') ||
+          txt.includes('partial') ||
+          txt.includes('warm') ||
+          txt.includes('practice') ||
+          txt.includes('not sure') ||
+          txt.includes('weak')
+        ) {
+          el.classList.add('gold');
+        }
 
-  updateProgress();
-}
+        updateProgress();
+      }
 
-function selectScale(el, groupId) {
-  const group = document.querySelector('[data-id="' + groupId + '"]');
-  if (!group) return;
+      function selectScale(el, groupId) {
+        const group = document.querySelector('[data-id="' + groupId + '"]');
+        if (!group) return;
 
-  const btns = group.querySelectorAll('.scale-btn');
-  const val = parseInt(el.textContent, 10);
+        const btns = group.querySelectorAll('.scale-btn');
+        const val = parseInt(el.textContent, 10);
 
-  btns.forEach((b, i) => {
-    b.classList.toggle('selected', i < val);
-  });
+        btns.forEach((b, i) => {
+          b.classList.toggle('selected', i < val);
+        });
 
-  updateProgress();
-}
+        updateProgress();
+      }
 
-function updateLocationStatus(i) {
-  const name = document.getElementById(`loc_${i}_name`)?.value.trim();
-  const signal = document.querySelector(`[data-id="loc_${i}_signal"] .chip.selected`);
-  const map = document.querySelector(`[data-id="loc_${i}_map"] .chip.selected`);
-  const gps = document.querySelector(`[data-id="loc_${i}_gps"] .chip.selected`);
-  const status = document.getElementById(`loc_${i}_status`);
+      function updateLocationStatus(i) {
+        const name = document.getElementById(`loc_${i}_name`)?.value.trim();
+        const signal = document.querySelector(`[data-id="loc_${i}_signal"] .chip.selected`);
+        const map = document.querySelector(`[data-id="loc_${i}_map"] .chip.selected`);
+        const gps = document.querySelector(`[data-id="loc_${i}_gps"] .chip.selected`);
+        const status = document.getElementById(`loc_${i}_status`);
 
-  if (!status) return;
+        if (!status) return;
 
-  status.textContent = (name || signal || map || gps) ? 'started' : 'optional';
-}
+        status.textContent = name || signal || map || gps ? 'started' : 'optional';
+      }
 
-function updateProgress() {
-  const required = ['q_name', 'q_location', 'q_signal', 'q_confident', 'q_overall'];
-  let filled = 0;
+      function updateProgress() {
+        const required = ['q_name', 'q_location', 'q_signal', 'q_confident', 'q_overall'];
+        let filled = 0;
 
-  required.forEach(id => {
-    const el = document.getElementById(id);
+        required.forEach((id) => {
+          const el = document.getElementById(id);
 
-    if (el && el.value.trim()) {
-      filled++;
-      return;
-    }
+          if (el && el.value.trim()) {
+            filled++;
+            return;
+          }
 
-    const chip = document.querySelector('[data-id="' + id + '"] .chip.selected');
-    const scale = document.querySelector('[data-id="' + id + '"] .scale-btn.selected');
+          const chip = document.querySelector('[data-id="' + id + '"] .chip.selected');
+          const scale = document.querySelector('[data-id="' + id + '"] .scale-btn.selected');
 
-    if (chip || scale) filled++;
-  });
+          if (chip || scale) filled++;
+        });
 
-  const pct = Math.round((filled / required.length) * 100);
+        const pct = Math.round((filled / required.length) * 100);
 
-  document.getElementById('progressFill').style.width = pct + '%';
-  document.getElementById('progressLabel').textContent = pct + '% complete';
-}
+        document.getElementById('progressFill').style.width = pct + '%';
+        document.getElementById('progressLabel').textContent = pct + '% complete';
+      }
 
-function getVal(id) {
-  const el = document.getElementById(id);
+      function getVal(id) {
+        const el = document.getElementById(id);
 
-  if (el) return el.value.trim() || '—';
+        if (el) return el.value.trim() || '—';
 
-  const chip = document.querySelector('[data-id="' + id + '"] .chip.selected');
-  if (chip) return chip.textContent.trim();
+        const chip = document.querySelector('[data-id="' + id + '"] .chip.selected');
+        if (chip) return chip.textContent.trim();
 
-  const scales = document.querySelectorAll('[data-id="' + id + '"] .scale-btn.selected');
-  if (scales.length) return scales.length + '/5';
+        const scales = document.querySelectorAll('[data-id="' + id + '"] .scale-btn.selected');
+        if (scales.length) return scales.length + '/5';
 
-  return '—';
-}
+        return '—';
+      }
 
-function collectLocations() {
-  const out = [];
+      function collectLocations() {
+        const out = [];
 
-  for (let i = 1; i <= LOCATION_COUNT; i++) {
-    const name = getVal(`loc_${i}_name`);
-    const signal = getVal(`loc_${i}_signal`);
-    const map = getVal(`loc_${i}_map`);
-    const gps = getVal(`loc_${i}_gps`);
+        for (let i = 1; i <= LOCATION_COUNT; i++) {
+          const name = getVal(`loc_${i}_name`);
+          const signal = getVal(`loc_${i}_signal`);
+          const map = getVal(`loc_${i}_map`);
+          const gps = getVal(`loc_${i}_gps`);
 
-    if (name !== '—' || signal !== '—' || map !== '—' || gps !== '—') {
-      out.push(
-        `Location ${i}: ${name}\n` +
-        `  Signal: ${signal}\n` +
-        `  Map: ${map}\n` +
-        `  GPS: ${gps}`
-      );
-    }
-  }
+          if (name !== '—' || signal !== '—' || map !== '—' || gps !== '—') {
+            out.push(
+              `Location ${i}: ${name}\n` +
+                `  Signal: ${signal}\n` +
+                `  Map: ${map}\n` +
+                `  GPS: ${gps}`,
+            );
+          }
+        }
 
-  return out.length ? out.join('\n') : '—';
-}
+        return out.length ? out.join('\n') : '—';
+      }
 
-function showThankYou() {
-  document.getElementById('main').style.display = 'none';
-  const ty = document.getElementById('thankyou');
-  ty.style.display = 'flex';
-}
+      function showThankYou() {
+        document.getElementById('main').style.display = 'none';
+        const ty = document.getElementById('thankyou');
+        ty.style.display = 'flex';
+      }
 
-function submitForm() {
-  const name = document.getElementById('q_name').value.trim();
-  const location = document.getElementById('q_location').value.trim();
-  const signal = getVal('q_signal');
-  const confident = getVal('q_confident');
-  const overall = getVal('q_overall');
+      function submitForm() {
+        const name = document.getElementById('q_name').value.trim();
+        const location = document.getElementById('q_location').value.trim();
+        const signal = getVal('q_signal');
+        const confident = getVal('q_confident');
+        const overall = getVal('q_overall');
 
-  if (!name || !location || signal === '—' || confident === '—' || overall === '—') {
-    alert('Please complete the required fields: name, location, signal, confidence, and overall rating.');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    return;
-  }
+        if (!name || !location || signal === '—' || confident === '—' || overall === '—') {
+          alert(
+            'Please complete the required fields: name, location, signal, confidence, and overall rating.',
+          );
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          return;
+        }
 
-  const lines = [
-    'E-ZONE BETA FIELD REPORT',
-    '========================',
-    '',
-    'NAME: ' + name,
-    'LOCATION: ' + location,
-    'DEVICE TYPE: ' + getVal('q_device'),
-    'PHONE/TABLET MODEL: ' + getVal('q_phone_model'),
-    'CELL SIGNAL: ' + signal,
-    '',
-    '--- SETUP & GPS ---',
-    'GPS found location quickly: ' + getVal('q_gps_lock'),
-    'Satellite imagery loaded: ' + getVal('q_map_load'),
-    'Setting 200-foot zone: ' + getVal('q_zone_set'),
-    '200-foot alert: ' + getVal('q_alert'),
-    'Map tiles: ' + getVal('q_tiles'),
-    'GPS/map notes: ' + getVal('q_gps_notes'),
-    '',
-    '--- WALKING THE ZONE ---',
-    'Zone stayed in place: ' + getVal('q_zone_drift'),
-    'Vibration / boundary alert useful: ' + getVal('q_boundary_feedback'),
-    'Obstacles: ' + getVal('q_obstacles'),
-    'Test spot notes: ' + getVal('q_location_notes'),
-    '',
-    '--- INCIDENT REPORTING ---',
-    'Pin drop: ' + getVal('q_pin'),
-    'Camera/photo step: ' + getVal('q_camera'),
-    'BOE email/photo attachment: ' + getVal('q_email_step'),
-    'Incident notes: ' + getVal('q_incident_notes'),
-    '',
-    '--- PER-LOCATION LOG ---',
-    collectLocations(),
-    '',
-    '--- STABILITY ---',
-    'Crashed/froze: ' + getVal('q_crash'),
-    'Battery drain: ' + getVal('q_battery'),
-    'Phone warmth: ' + getVal('q_heat'),
-    'Crash notes: ' + getVal('q_crash_notes'),
-    '',
-    '--- LOOK & FEEL ---',
-    'Professional/trustworthy: ' + getVal('q_professional'),
-    'Text readable outdoors: ' + getVal('q_readability'),
-    'Map/buttons visible in sun: ' + getVal('q_sun_map'),
-    'Buttons easy to tap: ' + getVal('q_buttons'),
-    'Confused by: ' + getVal('q_confused'),
-    '',
-    '--- OVERALL ---',
-    'What worked: ' + getVal('q_good'),
-    'Frustrating/confusing: ' + getVal('q_bad'),
-    'Missing: ' + getVal('q_missing'),
-    'Confident on Election Day: ' + confident,
-    'Would test future version: ' + getVal('q_future_test'),
-    'Overall rating: ' + overall,
-    '',
-    'Submitted: ' + new Date().toLocaleString(),
-    'User Agent: ' + navigator.userAgent
-  ];
+        const lines = [
+          'E-ZONE BETA FIELD REPORT',
+          '========================',
+          '',
+          'NAME: ' + name,
+          'LOCATION: ' + location,
+          'DEVICE TYPE: ' + getVal('q_device'),
+          'PHONE/TABLET MODEL: ' + getVal('q_phone_model'),
+          'CELL SIGNAL: ' + signal,
+          '',
+          '--- SETUP & GPS ---',
+          'GPS found location quickly: ' + getVal('q_gps_lock'),
+          'Satellite imagery loaded: ' + getVal('q_map_load'),
+          'Setting 200-foot zone: ' + getVal('q_zone_set'),
+          '200-foot alert: ' + getVal('q_alert'),
+          'Map tiles: ' + getVal('q_tiles'),
+          'GPS/map notes: ' + getVal('q_gps_notes'),
+          '',
+          '--- WALKING THE ZONE ---',
+          'Zone stayed in place: ' + getVal('q_zone_drift'),
+          'Vibration / boundary alert useful: ' + getVal('q_boundary_feedback'),
+          'Obstacles: ' + getVal('q_obstacles'),
+          'Test spot notes: ' + getVal('q_location_notes'),
+          '',
+          '--- INCIDENT REPORTING ---',
+          'Pin drop: ' + getVal('q_pin'),
+          'Camera/photo step: ' + getVal('q_camera'),
+          'BOE email/photo attachment: ' + getVal('q_email_step'),
+          'Incident notes: ' + getVal('q_incident_notes'),
+          '',
+          '--- PER-LOCATION LOG ---',
+          collectLocations(),
+          '',
+          '--- STABILITY ---',
+          'Crashed/froze: ' + getVal('q_crash'),
+          'Battery drain: ' + getVal('q_battery'),
+          'Phone warmth: ' + getVal('q_heat'),
+          'Crash notes: ' + getVal('q_crash_notes'),
+          '',
+          '--- LOOK & FEEL ---',
+          'Professional/trustworthy: ' + getVal('q_professional'),
+          'Text readable outdoors: ' + getVal('q_readability'),
+          'Map/buttons visible in sun: ' + getVal('q_sun_map'),
+          'Buttons easy to tap: ' + getVal('q_buttons'),
+          'Confused by: ' + getVal('q_confused'),
+          '',
+          '--- OVERALL ---',
+          'What worked: ' + getVal('q_good'),
+          'Frustrating/confusing: ' + getVal('q_bad'),
+          'Missing: ' + getVal('q_missing'),
+          'Confident on Election Day: ' + confident,
+          'Would test future version: ' + getVal('q_future_test'),
+          'Overall rating: ' + overall,
+          '',
+          'Submitted: ' + new Date().toLocaleString(),
+          'User Agent: ' + navigator.userAgent,
+        ];
 
-  const payload = {
-    token: SECRET_TOKEN,
-    submissionType: 'betaReport',
-    subject: 'E-Zone Beta Report — ' + name,
-    name: name,
-    location: location,
-    device: getVal('q_device'),
-    phoneModel: getVal('q_phone_model'),
-    signal: signal,
-    confident: confident,
-    overall: overall,
-    reportText: lines.join('\n'),
-    submittedAt: new Date().toLocaleString(),
-    userAgent: navigator.userAgent
-  };
+        const payload = {
+          token: CLIENT_ROUTING_TOKEN,
+          submissionType: 'betaReport',
+          subject: 'E-Zone Beta Report — ' + name,
+          name: name,
+          location: location,
+          device: getVal('q_device'),
+          phoneModel: getVal('q_phone_model'),
+          signal: signal,
+          confident: confident,
+          overall: overall,
+          reportText: lines.join('\n'),
+          submittedAt: new Date().toLocaleString(),
+          userAgent: navigator.userAgent,
+        };
 
-  const btn = document.querySelector('.submit-btn');
-  btn.disabled = true;
-  btn.textContent = 'Sending Report...';
+        const btn = document.querySelector('.submit-btn');
+        btn.disabled = true;
+        btn.textContent = 'Sending Report...';
 
-  fetch(SCRIPT_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: {
-      'Content-Type': 'text/plain;charset=utf-8'
-    },
-    body: JSON.stringify(payload)
-  })
-  .then(() => {
-    showThankYou();
-  })
-  .catch(() => {
-    alert('The report could not be sent automatically. Please check your connection and try again.');
-    btn.disabled = false;
-    btn.textContent = 'Submit Beta Report ★';
-  });
-}
+        fetch(SCRIPT_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'text/plain;charset=utf-8',
+          },
+          body: JSON.stringify(payload),
+        })
+          .then(async (res) => {
+            const data = await res.json().catch(() => null);
+            const accepted =
+              data && (data.success === true || data.ok === true || data.status === 'success');
 
-buildLocationLog();
-updateProgress();
-</script>
+            if (!res.ok || !accepted) {
+              throw new Error('Beta report was not accepted by the submission service.');
+            }
 
-</body>
+            return data;
+          })
+          .then(() => {
+            showThankYou();
+          })
+          .catch(() => {
+            alert(
+              'The report could not be confirmed as received. Please check your connection and try again.',
+            );
+            btn.disabled = false;
+            btn.textContent = 'Submit Beta Report ★';
+          });
+      }
+
+      buildLocationLog();
+      updateProgress();
+    </script>
+  </body>
 </html>
