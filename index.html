@@ -1320,6 +1320,7 @@
         gpsSamples: [], // short rolling sample list for stabilized incident pins
         lockedPos: null,
         photoQueue: [],
+        boeSubmissionId: null,
 
         arcData: null,
         arcLocked: false,
@@ -2363,6 +2364,7 @@
           contBtn.style.cssText =
             'background:#16a34a;color:white;border:none;border-radius:14px;padding:16px;font-family:Nunito,sans-serif;font-size:18px;font-weight:900;cursor:pointer;box-shadow:0 4px 8px rgba(0,0,0,0.38);';
           contBtn.onclick = () => {
+            STATE.boeSubmissionId = null;
             STATE.photoQueue.push({ rawUrl: dataUrl, dataUrl: stampedUrl, meta, filename });
             saveSession();
             document.body.removeChild(overlay);
@@ -2469,6 +2471,7 @@
         document.getElementById('photo-overlay').classList.remove('show');
         STATE.photoIndexInBatch++;
         if (STATE.currentPhoto) {
+          STATE.boeSubmissionId = null;
           STATE.photoQueue.push(STATE.currentPhoto);
           if (STATE.incidents.length > 0)
             STATE.incidents[STATE.incidents.length - 1].photo =
@@ -2540,6 +2543,7 @@
             arcLocked: STATE.arcLocked,
             incidents: STATE.incidents,
             photoQueue: STATE.photoQueue,
+            boeSubmissionId: STATE.boeSubmissionId,
             batchNumber: STATE.batchNumber,
             photoIndexInBatch: STATE.photoIndexInBatch,
             pollingPlaceName: STATE.pollingPlaceName,
@@ -2943,6 +2947,7 @@
         STATE.incidentMarkers.forEach((m) => map.removeLayer(m));
         STATE.incidentMarkers = [];
         STATE.photoQueue = [];
+        STATE.boeSubmissionId = null;
         // Reset is destructive by design: also remove any previously saved evidence session
         // so a stale queued batch cannot reappear after reload.
         clearSession();
@@ -3054,6 +3059,20 @@
           }
         }, 50);
       }
+      function makeBoeSubmissionId(batchStr) {
+        if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+          return 'ezone-' + batchStr + '-' + window.crypto.randomUUID();
+        }
+        return (
+          'ezone-' +
+          batchStr +
+          '-' +
+          Date.now().toString(36) +
+          '-' +
+          Math.random().toString(36).slice(2, 10)
+        );
+      }
+
       function sendToBOE() {
         if (boeSendInProgress) return;
         boeSendInProgress = true;
@@ -3070,17 +3089,19 @@
         }
         const overlay = document.getElementById('boe-popup-overlay');
         if (overlay) overlay.remove();
+
         const q = STATE.photoQueue.slice();
         const batchStr = String(STATE.batchNumber).padStart(5, '0');
         const APPS_SCRIPT_URL =
           'https://script.google.com/macros/s/AKfycbzK9yOGCF0ljhEbE91an7PwktICAOUY_F2Q2wbZHCuE7vSu6rq5ts7T8XwnlKi_fgyclA/exec';
         // Browser-visible routing value for the current Apps Script contract; not an authentication secret.
         const CLIENT_ROUTING_TOKEN = 'ezone-2026-secret-change-this';
-        const MAX_RETRIES = 1;
         const SEND_TIMEOUT_MS = 20000;
+        const STATUS_POLL_MS = 20000;
 
         if (q.length === 0) {
           boeSendInProgress = false;
+          STATE.boeSubmissionId = null;
           showToast('No photos to send — still ready to review', '#d97706');
           returnFromBOEPopup();
           return;
@@ -3094,6 +3115,11 @@
         }
 
         const total = q.length;
+        const submissionId =
+          STATE.boeSubmissionId || makeBoeSubmissionId(batchStr);
+        STATE.boeSubmissionId = submissionId;
+        saveSession();
+
         const finalizedPromise = Promise.all(
           q.map(function (item, i) {
             const rawUrl = item && typeof item === 'object' ? item.rawUrl || item.dataUrl : item;
@@ -3107,13 +3133,118 @@
           }),
         );
 
-        function attempt(retryCount, finalizedPhotos) {
-          retryCount = retryCount || 0;
+        function finishConfirmedSend() {
+          boeSendInProgress = false;
+          STATE.photoQueue = [];
+          STATE.boeSubmissionId = null;
+          // Persist the confirmed empty queue so a successfully sent batch cannot
+          // be restored from an older localStorage snapshot on the next launch.
+          saveSession();
+          showToast(
+            'All ' + total + ' photo' + (total === 1 ? '' : 's') + ' sent to BOE!',
+            '#16a34a',
+            3200,
+          );
+          goTo('s9');
+        }
 
+        function stopWithQueuedPhotos(message, color) {
+          boeSendInProgress = false;
+          showToast(message, color || '#d97706', 6500);
+          returnFromBOEPopup();
+        }
+
+        function scheduleStatusCheck(finalizedPhotos) {
           if (!navigator.onLine) {
-            boeSendInProgress = false;
-            showToast('Internet connection lost — photos are still queued. Try Send again when connected.', '#d97706', 5000);
-            returnFromBOEPopup();
+            stopWithQueuedPhotos(
+              'Internet connection lost — photos are still queued. Try Send again when connected.',
+              '#d97706',
+            );
+            return;
+          }
+          showToast(
+            'BOE is still processing the batch — checking again automatically...',
+            '#1d4ed8',
+            0,
+          );
+          setTimeout(function () {
+            checkServerStatus(finalizedPhotos);
+          }, STATUS_POLL_MS);
+        }
+
+        function checkServerStatus(finalizedPhotos) {
+          if (!navigator.onLine) {
+            stopWithQueuedPhotos(
+              'Internet connection lost — photos are still queued. Try Send again when connected.',
+              '#d97706',
+            );
+            return;
+          }
+
+          const statusUrl =
+            APPS_SCRIPT_URL +
+            '?action=incidentStatus&token=' +
+            encodeURIComponent(CLIENT_ROUTING_TOKEN) +
+            '&submissionId=' +
+            encodeURIComponent(submissionId) +
+            '&_=' +
+            Date.now();
+
+          fetch(statusUrl, { method: 'GET', cache: 'no-store' })
+            .then(function (res) {
+              if (!res.ok) throw new Error('BOE status HTTP ' + res.status);
+              return res.json();
+            })
+            .then(function (data) {
+              if (data && data.protocolVersion === 2 && data.status === 'completed') {
+                finishConfirmedSend();
+                return;
+              }
+
+              if (data && data.protocolVersion === 2 && data.status === 'processing') {
+                scheduleStatusCheck(finalizedPhotos);
+                return;
+              }
+
+              if (
+                data &&
+                data.protocolVersion === 2 &&
+                (data.status === 'unknown' || data.status === 'failed')
+              ) {
+                showToast(
+                  'BOE did not complete the batch — retrying the same submission safely...',
+                  '#d97706',
+                  0,
+                );
+                setTimeout(function () {
+                  sendAttempt(finalizedPhotos);
+                }, STATUS_POLL_MS);
+                return;
+              }
+
+              // Older Apps Script deployments do not expose status. Do not blindly
+              // resend the photos because the original request may still be finishing.
+              stopWithQueuedPhotos(
+                'Send may still be processing. Photos remain queued; try SEND TO BOE again later if no confirmation arrives.',
+                '#d97706',
+              );
+            })
+            .catch(function () {
+              // A legacy deployment can return non-JSON for GET. Treat that as
+              // "status unavailable", not as permission to duplicate the upload.
+              stopWithQueuedPhotos(
+                'Send status could not be confirmed. Photos remain queued; try SEND TO BOE again later if needed.',
+                '#d97706',
+              );
+            });
+        }
+
+        function sendAttempt(finalizedPhotos) {
+          if (!navigator.onLine) {
+            stopWithQueuedPhotos(
+              'Internet connection lost — photos are still queued. Try Send again when connected.',
+              '#d97706',
+            );
             return;
           }
 
@@ -3124,13 +3255,18 @@
           );
 
           const controller = new AbortController();
-          const timeoutId = setTimeout(function () { controller.abort(); }, SEND_TIMEOUT_MS);
+          const timeoutId = setTimeout(function () {
+            controller.abort();
+          }, SEND_TIMEOUT_MS);
 
           fetch(APPS_SCRIPT_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify({
               token: CLIENT_ROUTING_TOKEN,
+              submissionType: 'incidentReport',
+              submissionId: submissionId,
+              clientProtocolVersion: 2,
               batchNumber: batchStr,
               totalPhotos: total,
               timestamp: new Date().toLocaleString(),
@@ -3145,53 +3281,56 @@
               return res.json();
             })
             .then(function (data) {
-              if (data.success) {
-                boeSendInProgress = false;
-                STATE.photoQueue = [];
-                // Persist the confirmed empty queue so a successfully sent batch cannot
-                // be restored from an older localStorage snapshot on the next launch.
-                saveSession();
-                showToast(
-                  'All ' + total + ' photo' + (total === 1 ? '' : 's') + ' sent to BOE!',
-                  '#16a34a',
-                  3200,
-                );
-                goTo('s9');
-              } else {
-                if (retryCount < MAX_RETRIES) {
-                  showToast('Send did not complete — retrying once...', '#d97706', 0);
-                  setTimeout(function () {
-                    attempt(retryCount + 1, finalizedPhotos);
-                  }, 2000);
-                } else {
-                  boeSendInProgress = false;
-                  showToast('Send didn’t finish. Your photos are still saved. Tap SEND TO BOE to try again.', '#dc2626', 6000);
-                  returnFromBOEPopup();
-                }
+              if (data && data.success === true) {
+                finishConfirmedSend();
+                return;
               }
+
+              if (data && data.protocolVersion === 2 && data.status === 'processing') {
+                scheduleStatusCheck(finalizedPhotos);
+                return;
+              }
+
+              if (
+                data &&
+                data.protocolVersion === 2 &&
+                (data.status === 'unknown' || data.status === 'failed')
+              ) {
+                scheduleStatusCheck(finalizedPhotos);
+                return;
+              }
+
+              stopWithQueuedPhotos(
+                'Send did not complete. Your photos are still saved. Tap SEND TO BOE to try again.',
+                '#dc2626',
+              );
             })
             .catch(function (err) {
               clearTimeout(timeoutId);
               if (!navigator.onLine) {
-                boeSendInProgress = false;
-                showToast('Internet connection lost — photos are still queued. Try Send again when connected.', '#d97706', 5000);
-                returnFromBOEPopup();
-              } else if (retryCount < MAX_RETRIES) {
-                showToast(err && err.name === 'AbortError' ? 'Send is taking longer than expected — checking once more...' : 'Send was interrupted — checking once more...', '#d97706', 0);
-                setTimeout(function () {
-                  attempt(retryCount + 1, finalizedPhotos);
-                }, 2000);
-              } else {
-                boeSendInProgress = false;
-                showToast('Send didn’t finish. Your photos are still saved. Tap SEND TO BOE to try again.', '#dc2626', 6000);
-                returnFromBOEPopup();
+                stopWithQueuedPhotos(
+                  'Internet connection lost — photos are still queued. Try Send again when connected.',
+                  '#d97706',
+                );
+                return;
               }
+
+              if (err && err.name === 'AbortError') {
+                // The server may still be finishing even though the browser stopped waiting.
+                // Check status instead of immediately posting the same heavy batch again.
+                scheduleStatusCheck(finalizedPhotos);
+                return;
+              }
+
+              // A network interruption is ambiguous. Check the idempotent submission state
+              // before deciding whether another full upload is necessary.
+              scheduleStatusCheck(finalizedPhotos);
             });
         }
 
         finalizedPromise
           .then(function (finalizedPhotos) {
-            attempt(0, finalizedPhotos);
+            sendAttempt(finalizedPhotos);
           })
           .catch(function () {
             boeSendInProgress = false;
