@@ -62,17 +62,35 @@ test.describe('full-circle zone visualization', () => {
       const guide = document.querySelector('[data-zone-drag-guide]');
       const active = !!guide;
       const guideAngle = Math.atan2(+guide.getAttribute('y2') - +guide.getAttribute('y1'), +guide.getAttribute('x2') - +guide.getAttribute('x1')) * 180 / Math.PI;
+      const liveDrag = {
+        halves: [...document.querySelectorAll('[data-zone-half]')].map(p => p.getAttribute('fill')),
+        circleFill: document.querySelector('[data-zone-boundary]').getAttribute('fill'),
+      };
       onDragEnd({});
-      const short = { locked: STATE.arcLocked, guides: document.querySelectorAll('[data-zone-drag-guide]').length };
+      const short = {
+        locked: STATE.arcLocked,
+        guides: document.querySelectorAll('[data-zone-drag-guide]').length,
+        halves: document.querySelectorAll('[data-zone-half]').length,
+        circleFill: document.querySelector('[data-zone-boundary]').getAttribute('fill'),
+      };
       onDragStart(event(center.x, center.y));
       const distance = metersToPixels(CONFIG.defaultRadiusMeters) + 10;
       onDragMove(event(center.x + distance, center.y));
       onDragEnd({});
-      return { active, guideAngle, short, locked: STATE.arcLocked, guides: document.querySelectorAll('[data-zone-drag-guide]').length, halves: document.querySelectorAll('[data-zone-half]').length, radius: STATE.arcData.radiusM };
+      return { active, guideAngle, liveDrag, short, locked: STATE.arcLocked, guides: document.querySelectorAll('[data-zone-drag-guide]').length, halves: document.querySelectorAll('[data-zone-half]').length, radius: STATE.arcData.radiusM };
     });
     expect(result.active).toBe(true);
     expect(result.guideAngle).toBeCloseTo(45, 6);
-    expect(result.short).toEqual({ locked: false, guides: 0 });
+    expect(result.liveDrag).toEqual({
+      halves: ['rgba(220,38,38,0.33)', 'rgba(220,38,38,0.18)'],
+      circleFill: 'none',
+    });
+    expect(result.short).toEqual({
+      locked: false,
+      guides: 0,
+      halves: 0,
+      circleFill: 'rgba(220,38,38,0.18)',
+    });
     expect(result.locked).toBe(true);
     expect(result.guides).toBe(0);
     expect(result.halves).toBe(2);
