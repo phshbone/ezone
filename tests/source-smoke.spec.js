@@ -60,9 +60,17 @@ test.describe('E-Zone regular source smoke', () => {
     expect(indexSource).toContain('object-fit: contain;');
   });
 
-  test('BOE send is bounded and preserves queued photos on weak or missing internet', async () => {
-    expect(indexSource).toContain('const MAX_RETRIES = 1;');
+  test('BOE send uses idempotent submission tracking instead of blind duplicate POST retries', async () => {
+    expect(indexSource).not.toContain('const MAX_RETRIES = 1;');
     expect(indexSource).toContain('const SEND_TIMEOUT_MS = 20000;');
+    expect(indexSource).toContain('const STATUS_POLL_MS = 20000;');
+    expect(indexSource).toContain('submissionType: \'incidentReport\'');
+    expect(indexSource).toContain('submissionId: submissionId');
+    expect(indexSource).toContain('clientProtocolVersion: 2');
+    expect(indexSource).toContain("'?action=incidentStatus&token='");
+    expect(indexSource).toContain("data.status === 'processing'");
+    expect(indexSource).toContain("data.status === 'unknown' || data.status === 'failed'");
+    expect(indexSource).toContain('Check status instead of immediately posting the same heavy batch again.');
     expect(indexSource).toContain('new AbortController()');
     expect(indexSource).toContain('if (!navigator.onLine)');
     expect(indexSource).toContain('photos are still queued');
