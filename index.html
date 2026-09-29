@@ -1622,10 +1622,12 @@
         const ns = 'http://www.w3.org/2000/svg';
 
         // Both halves belong to the same measured zone; shading only shows orientation.
+        // Show the final orientation live while dragging so the divider can be used as an aiming guide.
         const dividerAngle = ((openingAngleDeg + 90) * Math.PI) / 180;
         const dx = r * Math.cos(dividerAngle);
         const dy = r * Math.sin(dividerAngle);
-        if (STATE.arcLocked) {
+        const showOrientedHalves = STATE.arcLocked || STATE.dragging;
+        if (showOrientedHalves) {
           for (const [half, sweep, opacity] of [['front', 0, 0.33], ['rear', 1, 0.18]]) {
             const fill = document.createElementNS(ns, 'path');
             fill.setAttribute('data-zone-half', half);
@@ -1642,7 +1644,7 @@
         circle.setAttribute('cx', cx);
         circle.setAttribute('cy', cy);
         circle.setAttribute('r', r);
-        circle.setAttribute('fill', STATE.arcLocked ? 'none' : 'rgba(220,38,38,0.18)');
+        circle.setAttribute('fill', showOrientedHalves ? 'none' : 'rgba(220,38,38,0.18)');
         circle.setAttribute('stroke', STATE.nearBoundary ? 'rgba(220,38,38,0.9)' : 'rgba(180,20,20,0.45)');
         circle.setAttribute('stroke-width', STATE.arcLocked ? '2.5' : '2');
         if (!STATE.arcLocked) circle.setAttribute('stroke-dasharray', '6 3');
@@ -1926,6 +1928,7 @@
         if (!reachedRequiredRadius) {
           STATE.arcLocked = false;
           zoneDone = false;
+          drawZone();
           drawGPSMarker('normal');
           showToast('Drag to the full 200 ft before releasing.', '#d97706');
           return;
