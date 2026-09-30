@@ -32,6 +32,18 @@ test.describe('E-Zone regular source smoke', () => {
     expect(feedbackSource).toContain('not an authentication secret');
   });
 
+  test('all E-Zone routes use the standalone E-Zone Apps Script endpoint', async () => {
+    const standaloneUrl =
+      'https://script.google.com/macros/s/AKfycbwOADHif0j2xdNLg28iC7PU3oVD00Z6jN_LkYhbLApjCqFZNSsZpw0q6NPC4Z-U6Iba/exec';
+    const oldSharedUrl =
+      'https://script.google.com/macros/s/AKfycbzK9yOGCF0ljhEbE91an7PwktICAOUY_F2Q2wbZHCuE7vSu6rq5ts7T8XwnlKi_fgyclA/exec';
+
+    expect(indexSource.split(standaloneUrl).length - 1).toBe(2);
+    expect(feedbackSource.split(standaloneUrl).length - 1).toBe(1);
+    expect(indexSource).not.toContain(oldSharedUrl);
+    expect(feedbackSource).not.toContain(oldSharedUrl);
+  });
+
   test('privacy wording matches beta-record and photo transmission behavior', async () => {
     expect(normalizedIndexSource).toMatch(
       /submits agreement\/check-in records and tester feedback through the (?:designated E-Zone tester system|connected E-Zone submission system)/i,
