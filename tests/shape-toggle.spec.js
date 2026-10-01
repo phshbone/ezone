@@ -20,7 +20,7 @@ async function prep(page, radiusM = 60.96, angle = 0, locked = true) {
 }
 
 test.describe('full-circle zone visualization', () => {
-  test('completed halves have restrained shading and follow the drag direction', async ({ page }) => {
+  test('completed zone emphasizes 270 degrees and keeps a faint 90-degree rear window', async ({ page }) => {
     await prep(page);
     for (const angle of [0, 35, 90, 180, 270]) {
       const result = await page.evaluate((angle) => {
@@ -32,18 +32,47 @@ test.describe('full-circle zone visualization', () => {
         const rad = angle * Math.PI / 180;
         const frontPoint = new DOMPoint(cx + r * 0.5 * Math.cos(rad), cy + r * 0.5 * Math.sin(rad));
         const rearPoint = new DOMPoint(cx - r * 0.5 * Math.cos(rad), cy - r * 0.5 * Math.sin(rad));
+        const leftSidePoint = new DOMPoint(
+          cx + r * 0.5 * Math.cos(rad + Math.PI / 2),
+          cy + r * 0.5 * Math.sin(rad + Math.PI / 2),
+        );
+        const rightSidePoint = new DOMPoint(
+          cx + r * 0.5 * Math.cos(rad - Math.PI / 2),
+          cy + r * 0.5 * Math.sin(rad - Math.PI / 2),
+        );
         return {
-          halves: [...document.querySelectorAll('[data-zone-half]')].map(p => ({
-            name: p.dataset.zoneHalf, fill: p.getAttribute('fill'), stroke: p.getAttribute('stroke'),
-            front: p.isPointInFill(frontPoint), rear: p.isPointInFill(rearPoint),
+          sectors: [...document.querySelectorAll('[data-zone-sector]')].map(p => ({
+            name: p.dataset.zoneSector,
+            fill: p.getAttribute('fill'),
+            stroke: p.getAttribute('stroke'),
+            front: p.isPointInFill(frontPoint),
+            rear: p.isPointInFill(rearPoint),
+            leftSide: p.isPointInFill(leftSidePoint),
+            rightSide: p.isPointInFill(rightSidePoint),
           })),
           circleFill: circle.getAttribute('fill'),
           guides: document.querySelectorAll('[data-zone-drag-guide]').length,
         };
       }, angle);
-      expect(result.halves).toEqual([
-        { name: 'front', fill: 'rgba(220,38,38,0.33)', stroke: 'none', front: true, rear: false },
-        { name: 'rear', fill: 'rgba(220,38,38,0.18)', stroke: 'none', front: false, rear: true },
+      expect(result.sectors).toEqual([
+        {
+          name: 'emphasized',
+          fill: 'rgba(220,38,38,0.33)',
+          stroke: 'none',
+          front: true,
+          rear: false,
+          leftSide: true,
+          rightSide: true,
+        },
+        {
+          name: 'deemphasized',
+          fill: 'rgba(220,38,38,0.09)',
+          stroke: 'none',
+          front: false,
+          rear: true,
+          leftSide: false,
+          rightSide: false,
+        },
       ]);
       expect(result.circleFill).toBe('none');
       expect(result.guides).toBe(0);
@@ -63,37 +92,40 @@ test.describe('full-circle zone visualization', () => {
       const active = !!guide;
       const guideAngle = Math.atan2(+guide.getAttribute('y2') - +guide.getAttribute('y1'), +guide.getAttribute('x2') - +guide.getAttribute('x1')) * 180 / Math.PI;
       const liveDrag = {
-        halves: [...document.querySelectorAll('[data-zone-half]')].map(p => p.getAttribute('fill')),
+        sectors: [...document.querySelectorAll('[data-zone-sector]')].map(p => p.getAttribute('fill')),
+        dividers: document.querySelectorAll('[data-zone-divider]').length,
         circleFill: document.querySelector('[data-zone-boundary]').getAttribute('fill'),
       };
       onDragEnd({});
       const short = {
         locked: STATE.arcLocked,
         guides: document.querySelectorAll('[data-zone-drag-guide]').length,
-        halves: document.querySelectorAll('[data-zone-half]').length,
+        sectors: document.querySelectorAll('[data-zone-sector]').length,
         circleFill: document.querySelector('[data-zone-boundary]').getAttribute('fill'),
       };
       onDragStart(event(center.x, center.y));
       const distance = metersToPixels(CONFIG.defaultRadiusMeters) + 10;
       onDragMove(event(center.x + distance, center.y));
       onDragEnd({});
-      return { active, guideAngle, liveDrag, short, locked: STATE.arcLocked, guides: document.querySelectorAll('[data-zone-drag-guide]').length, halves: document.querySelectorAll('[data-zone-half]').length, radius: STATE.arcData.radiusM };
+      return { active, guideAngle, liveDrag, short, locked: STATE.arcLocked, guides: document.querySelectorAll('[data-zone-drag-guide]').length, sectors: document.querySelectorAll('[data-zone-sector]').length, dividers: document.querySelectorAll('[data-zone-divider]').length, radius: STATE.arcData.radiusM };
     });
     expect(result.active).toBe(true);
     expect(result.guideAngle).toBeCloseTo(45, 6);
     expect(result.liveDrag).toEqual({
-      halves: ['rgba(220,38,38,0.33)', 'rgba(220,38,38,0.18)'],
+      sectors: ['rgba(220,38,38,0.33)', 'rgba(220,38,38,0.09)'],
+      dividers: 2,
       circleFill: 'none',
     });
     expect(result.short).toEqual({
       locked: false,
       guides: 0,
-      halves: 0,
+      sectors: 0,
       circleFill: 'rgba(220,38,38,0.18)',
     });
     expect(result.locked).toBe(true);
     expect(result.guides).toBe(0);
-    expect(result.halves).toBe(2);
+    expect(result.sectors).toBe(2);
+    expect(result.dividers).toBe(2);
     expect(result.radius).toBe(60.96);
   });
 
@@ -123,35 +155,46 @@ test.describe('full-circle zone visualization', () => {
       expect(result.cy).toBeCloseTo(result.center.y, 6);
       expect(result.r).toBeCloseTo(result.expectedR, 6);
       expect(result.visiblePaths).toBe(2);
-      expect(result.lines).toBe(1);
+      expect(result.lines).toBe(2);
       expect(result.toggles).toBe(0);
       expect(result.markers).toBe(0);
     }
   });
 
-  test('divider bisects the center perpendicular to the existing drag direction', async ({ page }) => {
+  test('two faint radial dividers bound the 90-degree rear window', async ({ page }) => {
     await prep(page);
     for (const angle of [-179, -90, 0, 45, 90, 180, 359]) {
       const result = await page.evaluate((angle) => {
         STATE.arcData.openingAngleDeg = angle;
         drawZone();
         const c = document.querySelector('[data-zone-boundary]');
-        const d = document.querySelector('[data-zone-divider]');
+        const ds = [...document.querySelectorAll('[data-zone-divider]')];
         const cx = +c.getAttribute('cx'), cy = +c.getAttribute('cy'), r = +c.getAttribute('r');
-        const x1 = +d.getAttribute('x1'), y1 = +d.getAttribute('y1');
-        const x2 = +d.getAttribute('x2'), y2 = +d.getAttribute('y2');
-        return { cx, cy, r, x1, y1, x2, y2,
-          perpendicular: ((x2-x1)*Math.cos(angle*Math.PI/180)+(y2-y1)*Math.sin(angle*Math.PI/180))/(2*r),
-          thin: +d.getAttribute('stroke-width') < +c.getAttribute('stroke-width'),
-          stroke: d.getAttribute('stroke'),
-          orientation: STATE.arcData.openingAngleDeg };
+        return {
+          cx, cy, r,
+          dividers: ds.map(d => ({
+            x1: +d.getAttribute('x1'),
+            y1: +d.getAttribute('y1'),
+            x2: +d.getAttribute('x2'),
+            y2: +d.getAttribute('y2'),
+            stroke: d.getAttribute('stroke'),
+            width: +d.getAttribute('stroke-width'),
+          })),
+          orientation: STATE.arcData.openingAngleDeg,
+        };
       }, angle);
-      expect((result.x1 + result.x2) / 2).toBeCloseTo(result.cx, 6);
-      expect((result.y1 + result.y2) / 2).toBeCloseTo(result.cy, 6);
-      expect(Math.hypot(result.x2-result.x1, result.y2-result.y1)).toBeCloseTo(2*result.r, 6);
-      expect(result.perpendicular).toBeCloseTo(0, 6);
-      expect(result.thin).toBe(true);
-      expect(result.stroke).toBe('rgba(180,20,20,0.18)');
+
+      expect(result.dividers).toHaveLength(2);
+      const expectedAngles = [angle + 135, angle + 225];
+      result.dividers.forEach((d, index) => {
+        const rad = expectedAngles[index] * Math.PI / 180;
+        expect(d.x1).toBeCloseTo(result.cx, 6);
+        expect(d.y1).toBeCloseTo(result.cy, 6);
+        expect(d.x2).toBeCloseTo(result.cx + result.r * Math.cos(rad), 6);
+        expect(d.y2).toBeCloseTo(result.cy + result.r * Math.sin(rad), 6);
+        expect(d.width).toBeLessThan(2.5);
+        expect(d.stroke).toBe('rgba(180,20,20,0.18)');
+      });
       expect(result.orientation).toBe(angle);
     }
   });
@@ -189,7 +232,7 @@ test.describe('full-circle zone visualization', () => {
       viewportWidth: window.innerWidth,
       height: window.innerHeight,
     }));
-    expect(result.lines).toBe(2);
+    expect(result.lines).toBe(3);
     expect(result.dash).toBe('6 3');
     expect(result.overflow).toBe(false);
     expect(result.barTop).toBeGreaterThanOrEqual(0);
