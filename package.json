@@ -2,12 +2,15 @@
   "name": "modzone-live-smoke-test",
   "private": true,
   "version": "1.0.0",
-  "description": "Repository-only Playwright harness for E-Zone live smoke testing. Not part of the application runtime.",
+  "description": "Repository-only development tooling for E-Zone validation and cleanup. Not part of the application runtime.",
   "scripts": {
     "test:live-smoke": "playwright test",
-    "test:live-smoke:report": "playwright show-report"
+    "test:live-smoke:report": "playwright show-report",
+    "format:cleanup": "prettier --write index.html feedback.html instructions.html",
+    "format:check": "prettier --check index.html feedback.html instructions.html"
   },
   "devDependencies": {
-    "@playwright/test": "1.62.1"
+    "@playwright/test": "1.62.1",
+    "prettier": "3.6.2"
   }
 }

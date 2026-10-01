@@ -1,375 +1,589 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="theme-color" content="#0a1628"/>
-<title>E-Zone Tester Instructions</title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet"/>
-<style>
-  :root {
-    --navy: #0a1628;
-    --red: #dc2626;
-    --blue: #1d4ed8;
-    --green: #16a34a;
-    --white: #ffffff;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  html, body { background: var(--navy); font-family: 'Nunito', sans-serif; color: var(--white); min-height: 100%; }
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="theme-color" content="#0a1628" />
+    <title>E-Zone Tester Instructions</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Oswald:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --navy: #0a1628;
+        --red: #dc2626;
+        --blue: #1d4ed8;
+        --green: #16a34a;
+        --white: #ffffff;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        -webkit-tap-highlight-color: transparent;
+      }
+      html,
+      body {
+        background: var(--navy);
+        font-family: 'Nunito', sans-serif;
+        color: var(--white);
+        min-height: 100%;
+      }
 
-  /* ── Header ── */
-  .header {
-    background: linear-gradient(to bottom, #090f2b, #0d1b4f);
-    padding: 48px 20px 28px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-  .star-row {
-    display: flex; justify-content: space-around;
-    padding: 0 8px; margin-bottom: 6px; opacity: 0.5;
-  }
-  .header-badge {
-    display: inline-block; background: var(--red);
-    color: white; font-family: 'Oswald', sans-serif;
-    font-size: 11px; letter-spacing: 3px;
-    padding: 4px 14px; border-radius: 20px; margin-bottom: 10px;
-  }
-  .header h1 { font-family: 'Oswald', sans-serif; font-size: 26px; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }
-  .header h1 span { color: var(--red); }
-  .header p { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.6); line-height: 1.5; max-width: 300px; margin: 0 auto; }
+      /* ── Header ── */
+      .header {
+        background: linear-gradient(to bottom, #090f2b, #0d1b4f);
+        padding: 48px 20px 28px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+      .star-row {
+        display: flex;
+        justify-content: space-around;
+        padding: 0 8px;
+        margin-bottom: 6px;
+        opacity: 0.5;
+      }
+      .header-badge {
+        display: inline-block;
+        background: var(--red);
+        color: white;
+        font-family: 'Oswald', sans-serif;
+        font-size: 11px;
+        letter-spacing: 3px;
+        padding: 4px 14px;
+        border-radius: 20px;
+        margin-bottom: 10px;
+      }
+      .header h1 {
+        font-family: 'Oswald', sans-serif;
+        font-size: 26px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        margin-bottom: 8px;
+      }
+      .header h1 span {
+        color: var(--red);
+      }
+      .header p {
+        font-size: 13px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.6);
+        line-height: 1.5;
+        max-width: 300px;
+        margin: 0 auto;
+      }
 
-  /* ── Tab switcher ── */
-  .tabs { display: flex; padding: 16px 16px 0; gap: 8px; max-width: 480px; margin: 0 auto; }
-  .tab {
-    flex: 1; padding: 12px 8px; border-radius: 12px 12px 0 0;
-    background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.1);
-    border-bottom: none; color: rgba(255,255,255,0.5);
-    font-family: 'Oswald', sans-serif; font-size: 15px; font-weight: 600;
-    letter-spacing: 1px; text-align: center; cursor: pointer;
-    transition: all 0.2s;
-  }
-  .tab.active { background: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.2); }
-  .tab .tab-icon { font-size: 18px; display: block; margin-bottom: 2px; }
-  .tab.iphone.active { border-top: 2px solid var(--blue); }
-  .tab.android.active { border-top: 2px solid var(--green); }
+      /* ── Tab switcher ── */
+      .tabs {
+        display: flex;
+        padding: 16px 16px 0;
+        gap: 8px;
+        max-width: 480px;
+        margin: 0 auto;
+      }
+      .tab {
+        flex: 1;
+        padding: 12px 8px;
+        border-radius: 12px 12px 0 0;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1.5px solid rgba(255, 255, 255, 0.1);
+        border-bottom: none;
+        color: rgba(255, 255, 255, 0.5);
+        font-family: 'Oswald', sans-serif;
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .tab.active {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+      .tab .tab-icon {
+        font-size: 18px;
+        display: block;
+        margin-bottom: 2px;
+      }
+      .tab.iphone.active {
+        border-top: 2px solid var(--blue);
+      }
+      .tab.android.active {
+        border-top: 2px solid var(--green);
+      }
 
-  /* ── Content panels ── */
-  .content { max-width: 480px; margin: 0 auto; padding: 0 16px 40px; }
-  .panel { display: none; }
-  .panel.active { display: block; }
+      /* ── Content panels ── */
+      .content {
+        max-width: 480px;
+        margin: 0 auto;
+        padding: 0 16px 40px;
+      }
+      .panel {
+        display: none;
+      }
+      .panel.active {
+        display: block;
+      }
 
-  /* ── Section card ── */
-  .card {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 0 0 16px 16px;
-    margin-bottom: 12px;
-    overflow: hidden;
-  }
-  .card-first { border-radius: 0 16px 16px 16px; }
-  .card-header {
-    padding: 14px 16px 12px;
-    display: flex; align-items: center; gap: 10px;
-    border-bottom: 1px solid rgba(255,255,255,0.07);
-  }
-  .card-num {
-    width: 28px; height: 28px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 700;
-    flex-shrink: 0;
-  }
-  .iphone-num { background: var(--blue); }
-  .android-num { background: var(--green); }
-  .card-title { font-family: 'Oswald', sans-serif; font-size: 15px; font-weight: 600; letter-spacing: 0.5px; }
+      /* ── Section card ── */
+      .card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 0 0 16px 16px;
+        margin-bottom: 12px;
+        overflow: hidden;
+      }
+      .card-first {
+        border-radius: 0 16px 16px 16px;
+      }
+      .card-header {
+        padding: 14px 16px 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      }
+      .card-num {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Oswald', sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+      .iphone-num {
+        background: var(--blue);
+      }
+      .android-num {
+        background: var(--green);
+      }
+      .card-title {
+        font-family: 'Oswald', sans-serif;
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+      }
 
-  /* ── Steps ── */
-  .steps { padding: 14px 16px; }
-  .step {
-    display: flex; gap: 12px; margin-bottom: 14px; align-items: flex-start;
-  }
-  .step:last-child { margin-bottom: 0; }
-  .step-dot {
-    width: 22px; height: 22px; border-radius: 50%;
-    background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.15);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 11px; font-weight: 900; color: rgba(255,255,255,0.5);
-    flex-shrink: 0; margin-top: 1px;
-  }
-  .step-text { font-size: 14px; font-weight: 700; line-height: 1.5; color: rgba(255,255,255,0.88); }
-  .step-text strong { color: white; font-weight: 900; }
-  .step-text em { color: rgba(255,255,255,0.5); font-style: normal; font-size: 12px; }
+      /* ── Steps ── */
+      .steps {
+        padding: 14px 16px;
+      }
+      .step {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 14px;
+        align-items: flex-start;
+      }
+      .step:last-child {
+        margin-bottom: 0;
+      }
+      .step-dot {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1.5px solid rgba(255, 255, 255, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 900;
+        color: rgba(255, 255, 255, 0.5);
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
+      .step-text {
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1.5;
+        color: rgba(255, 255, 255, 0.88);
+      }
+      .step-text strong {
+        color: white;
+        font-weight: 900;
+      }
+      .step-text em {
+        color: rgba(255, 255, 255, 0.5);
+        font-style: normal;
+        font-size: 12px;
+      }
 
-  /* ── Alert box ── */
-  .alert {
-    margin: 0 16px 14px;
-    padding: 10px 14px;
-    border-radius: 10px;
-    font-size: 13px; font-weight: 700; line-height: 1.5;
-    display: flex; gap: 8px; align-items: flex-start;
-  }
-  .alert-red { background: rgba(220,38,38,0.15); border: 1px solid rgba(220,38,38,0.3); color: rgba(255,255,255,0.85); }
-  .alert-blue { background: rgba(29,78,216,0.15); border: 1px solid rgba(29,78,216,0.3); color: rgba(255,255,255,0.85); }
-  .alert-green { background: rgba(22,163,74,0.15); border: 1px solid rgba(22,163,74,0.3); color: rgba(255,255,255,0.85); }
+      /* ── Alert box ── */
+      .alert {
+        margin: 0 16px 14px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1.5;
+        display: flex;
+        gap: 8px;
+        align-items: flex-start;
+      }
+      .alert-red {
+        background: rgba(220, 38, 38, 0.15);
+        border: 1px solid rgba(220, 38, 38, 0.3);
+        color: rgba(255, 255, 255, 0.85);
+      }
+      .alert-blue {
+        background: rgba(29, 78, 216, 0.15);
+        border: 1px solid rgba(29, 78, 216, 0.3);
+        color: rgba(255, 255, 255, 0.85);
+      }
+      .alert-green {
+        background: rgba(22, 163, 74, 0.15);
+        border: 1px solid rgba(22, 163, 74, 0.3);
+        color: rgba(255, 255, 255, 0.85);
+      }
 
-  /* ── Divider ── */
-  .divider { height: 1px; background: rgba(255,255,255,0.07); margin: 4px 0; }
+      /* ── Divider ── */
+      .divider {
+        height: 1px;
+        background: rgba(255, 255, 255, 0.07);
+        margin: 4px 0;
+      }
 
-  /* ── Footer ── */
-  .footer { text-align: center; padding: 20px 16px 10px; }
-  .footer p { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.3); line-height: 1.6; }
-</style>
-</head>
-<body>
-
-<!-- Header -->
-<div class="header">
-  <div class="star-row">
-    <span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span><span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span><span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span>
-  </div>
-  <div class="header-badge">BETA TESTER GUIDE</div>
-  <h1>E-<span>Zone</span> Setup</h1>
-  <p>Tap your device type below for step-by-step instructions.</p>
-</div>
-
-<!-- Tabs -->
-<div class="tabs">
-  <div class="tab iphone active" onclick="switchTab('iphone')">
-    <span class="tab-icon">🍎</span>iPHONE
-  </div>
-  <div class="tab android" onclick="switchTab('android')">
-    <span class="tab-icon">🤖</span>ANDROID
-  </div>
-</div>
-
-<!-- Content -->
-<div class="content">
-
-  <!-- ══ iPHONE PANEL ══ -->
-  <div class="panel active" id="panel-iphone">
-
-    <!-- Card 1: Home screen icon -->
-    <div class="card card-first">
-      <div class="card-header">
-        <div class="card-num iphone-num">1</div>
-        <div class="card-title">Add E-Zone to Your Home Screen</div>
+      /* ── Footer ── */
+      .footer {
+        text-align: center;
+        padding: 20px 16px 10px;
+      }
+      .footer p {
+        font-size: 12px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.3);
+        line-height: 1.6;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <div class="header">
+      <div class="star-row">
+        <span style="color: #dc2626">★</span><span style="color: white">★</span
+        ><span style="color: #1d4ed8">★</span><span style="color: #dc2626">★</span
+        ><span style="color: white">★</span><span style="color: #1d4ed8">★</span
+        ><span style="color: #dc2626">★</span><span style="color: white">★</span
+        ><span style="color: #1d4ed8">★</span>
       </div>
-      <div class="alert alert-blue">
-        ⚠️ Must use <strong>Safari</strong> — Chrome won't give you the Add to Home Screen option.
+      <div class="header-badge">BETA TESTER GUIDE</div>
+      <h1>E-<span>Zone</span> Setup</h1>
+      <p>Tap your device type below for step-by-step instructions.</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab iphone active" onclick="switchTab('iphone')">
+        <span class="tab-icon">🍎</span>iPHONE
       </div>
-      <div class="steps">
-        <div class="step">
-          <div class="step-dot">1</div>
-          <div class="step-text">Open the E-Zone link in <strong>Safari</strong></div>
-        </div>
-        <div class="step">
-          <div class="step-dot">2</div>
-          <div class="step-text">Tap the <strong>Share button</strong> at the bottom of the screen <em>(box with arrow pointing up)</em></div>
-        </div>
-        <div class="step">
-          <div class="step-dot">3</div>
-          <div class="step-text">Scroll down and tap <strong>Add to Home Screen</strong></div>
-        </div>
-        <div class="step">
-          <div class="step-dot">4</div>
-          <div class="step-text">Name it <strong>E-Zone</strong> and tap <strong>Add</strong></div>
-        </div>
-        <div class="step">
-          <div class="step-dot">5</div>
-          <div class="step-text">The icon now lives on your home screen like a regular app ✓</div>
-        </div>
+      <div class="tab android" onclick="switchTab('android')">
+        <span class="tab-icon">🤖</span>ANDROID
       </div>
     </div>
 
-    <!-- Card 2: Saving photos -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-num iphone-num">2</div>
-        <div class="card-title">Saving Your Photos</div>
+    <!-- Content -->
+    <div class="content">
+      <!-- ══ iPHONE PANEL ══ -->
+      <div class="panel active" id="panel-iphone">
+        <!-- Card 1: Home screen icon -->
+        <div class="card card-first">
+          <div class="card-header">
+            <div class="card-num iphone-num">1</div>
+            <div class="card-title">Add E-Zone to Your Home Screen</div>
+          </div>
+          <div class="alert alert-blue">
+            ⚠️ Must use <strong>Safari</strong> — Chrome won't give you the Add to Home Screen
+            option.
+          </div>
+          <div class="steps">
+            <div class="step">
+              <div class="step-dot">1</div>
+              <div class="step-text">Open the E-Zone link in <strong>Safari</strong></div>
+            </div>
+            <div class="step">
+              <div class="step-dot">2</div>
+              <div class="step-text">
+                Tap the <strong>Share button</strong> at the bottom of the screen
+                <em>(box with arrow pointing up)</em>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot">3</div>
+              <div class="step-text">Scroll down and tap <strong>Add to Home Screen</strong></div>
+            </div>
+            <div class="step">
+              <div class="step-dot">4</div>
+              <div class="step-text">
+                Name it <strong>E-Zone</strong> and tap <strong>Add</strong>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot">5</div>
+              <div class="step-text">
+                The icon now lives on your home screen like a regular app ✓
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Saving photos -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-num iphone-num">2</div>
+            <div class="card-title">Saving Your Photos</div>
+          </div>
+          <div class="steps">
+            <div class="step">
+              <div class="step-dot">1</div>
+              <div class="step-text">
+                After taking a photo, tap <strong>Continue</strong> in the preview screen
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot">2</div>
+              <div class="step-text">
+                Your iPhone <strong>Share Sheet</strong> will appear automatically
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot">3</div>
+              <div class="step-text">Tap <strong>Save Image</strong></div>
+            </div>
+            <div class="step">
+              <div class="step-dot">4</div>
+              <div class="step-text">
+                Photo saves to your <strong>Camera Roll</strong> in the Photos app — look in
+                <strong>Recents</strong>
+              </div>
+            </div>
+          </div>
+          <div class="alert alert-green" style="margin-top: 0">
+            💡 Each photo has a <strong>timestamp label</strong> so they're easy to find and
+            identify later.
+          </div>
+        </div>
+
+        <!-- Card 3: Emailing results -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-num iphone-num">3</div>
+            <div class="card-title">Finding &amp; Emailing Your Results</div>
+          </div>
+          <div class="steps">
+            <div class="step">
+              <div class="step-dot">1</div>
+              <div class="step-text">
+                Open your <strong>Photos</strong> app and go to <strong>Recents</strong> — your
+                E-Zone photos will be there with timestamp labels
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot">2</div>
+              <div class="step-text">
+                The app will open your <strong>Mail</strong> app pre-filled with the correct email
+                address and subject line — <strong>don't change those</strong>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot">3</div>
+              <div class="step-text">
+                In the <strong>body of the email</strong>, type your location first
+                <em>(example: Troy Hill School, Morris County)</em>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot">4</div>
+              <div class="step-text">
+                After typing your location, tap the <strong>paperclip icon</strong> — or press and
+                hold in the body and tap <strong>Insert Photo or Video</strong>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot">5</div>
+              <div class="step-text">
+                Select your E-Zone photos from <strong>Camera Roll → Recents</strong>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot">6</div>
+              <div class="step-text">Hit <strong>Send</strong> ✓</div>
+            </div>
+          </div>
+          <div class="alert alert-red" style="margin-top: 0">
+            📍 <strong>Always type your location in the email body first</strong> — before attaching
+            anything. This is how we know where each incident happened.
+          </div>
+        </div>
       </div>
-      <div class="steps">
-        <div class="step">
-          <div class="step-dot">1</div>
-          <div class="step-text">After taking a photo, tap <strong>Continue</strong> in the preview screen</div>
+      <!-- /iphone panel -->
+
+      <!-- ══ ANDROID PANEL ══ -->
+      <div class="panel" id="panel-android">
+        <!-- Card 1: Home screen icon -->
+        <div class="card card-first">
+          <div class="card-header">
+            <div class="card-num android-num">1</div>
+            <div class="card-title">Add E-Zone to Your Home Screen</div>
+          </div>
+          <div class="alert alert-green">
+            ✓ Use <strong>Chrome</strong> on Android for the best experience.
+          </div>
+          <div class="steps">
+            <div class="step">
+              <div class="step-dot">1</div>
+              <div class="step-text">Open the E-Zone link in <strong>Chrome</strong></div>
+            </div>
+            <div class="step">
+              <div class="step-dot">2</div>
+              <div class="step-text">
+                Tap the <strong>three dots</strong> in the top right corner
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot">3</div>
+              <div class="step-text">Tap <strong>Add to Home Screen</strong></div>
+            </div>
+            <div class="step">
+              <div class="step-dot">4</div>
+              <div class="step-text">
+                Name it <strong>E-Zone</strong> and tap <strong>Add</strong>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot">5</div>
+              <div class="step-text">Tap <strong>Add</strong> again if a second prompt appears</div>
+            </div>
+            <div class="step">
+              <div class="step-dot">6</div>
+              <div class="step-text">
+                The icon now lives on your home screen like a regular app ✓
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="step">
-          <div class="step-dot">2</div>
-          <div class="step-text">Your iPhone <strong>Share Sheet</strong> will appear automatically</div>
+
+        <!-- Card 2: Saving photos -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-num android-num">2</div>
+            <div class="card-title">Saving Your Photos</div>
+          </div>
+          <div class="steps">
+            <div class="step">
+              <div class="step-dot">1</div>
+              <div class="step-text">
+                After taking a photo, tap <strong>Continue</strong> in the preview screen
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot">2</div>
+              <div class="step-text">
+                A save or share option will appear — tap <strong>Save</strong> or
+                <strong>Download</strong>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot">3</div>
+              <div class="step-text">
+                Photo saves to your <strong>Downloads</strong> folder or
+                <strong>Gallery</strong> depending on your phone
+              </div>
+            </div>
+          </div>
+          <div class="alert alert-green" style="margin-top: 0">
+            💡 Each photo has a <strong>timestamp label</strong> so they're easy to find and
+            identify later.
+          </div>
         </div>
-        <div class="step">
-          <div class="step-dot">3</div>
-          <div class="step-text">Tap <strong>Save Image</strong></div>
-        </div>
-        <div class="step">
-          <div class="step-dot">4</div>
-          <div class="step-text">Photo saves to your <strong>Camera Roll</strong> in the Photos app — look in <strong>Recents</strong></div>
+
+        <!-- Card 3: Emailing results -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-num android-num">3</div>
+            <div class="card-title">Finding &amp; Emailing Your Results</div>
+          </div>
+          <div class="steps">
+            <div class="step">
+              <div class="step-dot">1</div>
+              <div class="step-text">
+                Open your <strong>Gallery</strong> app and check <strong>Recents</strong> or
+                <strong>Downloads</strong> album — or open <strong>Files → Downloads</strong>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot">2</div>
+              <div class="step-text">
+                The app will open your email app pre-filled with the correct address and subject
+                line — <strong>don't change those</strong>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot">3</div>
+              <div class="step-text">
+                In the <strong>body of the email</strong>, type your location first
+                <em>(example: Troy Hill School, Morris County)</em>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot">4</div>
+              <div class="step-text">
+                After typing your location, tap the <strong>paperclip icon</strong> in the toolbar
+                above your keyboard
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot">5</div>
+              <div class="step-text">
+                Navigate to <strong>Downloads</strong> or <strong>Gallery</strong> and select your
+                E-Zone photos
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot">6</div>
+              <div class="step-text">Hit <strong>Send</strong> ✓</div>
+            </div>
+          </div>
+          <div class="alert alert-red" style="margin-top: 0">
+            📍 <strong>Always type your location in the email body first</strong> — before attaching
+            anything. This is how we know where each incident happened.
+          </div>
         </div>
       </div>
-      <div class="alert alert-green" style="margin-top:0;">
-        💡 Each photo has a <strong>timestamp label</strong> so they're easy to find and identify later.
+      <!-- /android panel -->
+
+      <div class="footer">
+        <p>
+          E-Zone · Independent Civic Technology<br />© 2026 William McKenna · All Rights Reserved
+        </p>
+        <div style="margin-top: 12px; display: flex; justify-content: center; gap: 8px">
+          <span style="color: #dc2626">★</span><span style="color: white">★</span
+          ><span style="color: #1d4ed8">★</span><span style="color: #dc2626">★</span
+          ><span style="color: white">★</span>
+        </div>
       </div>
     </div>
+    <!-- /content -->
 
-    <!-- Card 3: Emailing results -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-num iphone-num">3</div>
-        <div class="card-title">Finding &amp; Emailing Your Results</div>
-      </div>
-      <div class="steps">
-        <div class="step">
-          <div class="step-dot">1</div>
-          <div class="step-text">Open your <strong>Photos</strong> app and go to <strong>Recents</strong> — your E-Zone photos will be there with timestamp labels</div>
-        </div>
-        <div class="step">
-          <div class="step-dot">2</div>
-          <div class="step-text">The app will open your <strong>Mail</strong> app pre-filled with the correct email address and subject line — <strong>don't change those</strong></div>
-        </div>
-        <div class="step">
-          <div class="step-dot">3</div>
-          <div class="step-text">In the <strong>body of the email</strong>, type your location first <em>(example: Troy Hill School, Morris County)</em></div>
-        </div>
-        <div class="step">
-          <div class="step-dot">4</div>
-          <div class="step-text">After typing your location, tap the <strong>paperclip icon</strong> — or press and hold in the body and tap <strong>Insert Photo or Video</strong></div>
-        </div>
-        <div class="step">
-          <div class="step-dot">5</div>
-          <div class="step-text">Select your E-Zone photos from <strong>Camera Roll → Recents</strong></div>
-        </div>
-        <div class="step">
-          <div class="step-dot">6</div>
-          <div class="step-text">Hit <strong>Send</strong> ✓</div>
-        </div>
-      </div>
-      <div class="alert alert-red" style="margin-top:0;">
-        📍 <strong>Always type your location in the email body first</strong> — before attaching anything. This is how we know where each incident happened.
-      </div>
-    </div>
-
-  </div><!-- /iphone panel -->
-
-  <!-- ══ ANDROID PANEL ══ -->
-  <div class="panel" id="panel-android">
-
-    <!-- Card 1: Home screen icon -->
-    <div class="card card-first">
-      <div class="card-header">
-        <div class="card-num android-num">1</div>
-        <div class="card-title">Add E-Zone to Your Home Screen</div>
-      </div>
-      <div class="alert alert-green">
-        ✓ Use <strong>Chrome</strong> on Android for the best experience.
-      </div>
-      <div class="steps">
-        <div class="step">
-          <div class="step-dot">1</div>
-          <div class="step-text">Open the E-Zone link in <strong>Chrome</strong></div>
-        </div>
-        <div class="step">
-          <div class="step-dot">2</div>
-          <div class="step-text">Tap the <strong>three dots</strong> in the top right corner</div>
-        </div>
-        <div class="step">
-          <div class="step-dot">3</div>
-          <div class="step-text">Tap <strong>Add to Home Screen</strong></div>
-        </div>
-        <div class="step">
-          <div class="step-dot">4</div>
-          <div class="step-text">Name it <strong>E-Zone</strong> and tap <strong>Add</strong></div>
-        </div>
-        <div class="step">
-          <div class="step-dot">5</div>
-          <div class="step-text">Tap <strong>Add</strong> again if a second prompt appears</div>
-        </div>
-        <div class="step">
-          <div class="step-dot">6</div>
-          <div class="step-text">The icon now lives on your home screen like a regular app ✓</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Card 2: Saving photos -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-num android-num">2</div>
-        <div class="card-title">Saving Your Photos</div>
-      </div>
-      <div class="steps">
-        <div class="step">
-          <div class="step-dot">1</div>
-          <div class="step-text">After taking a photo, tap <strong>Continue</strong> in the preview screen</div>
-        </div>
-        <div class="step">
-          <div class="step-dot">2</div>
-          <div class="step-text">A save or share option will appear — tap <strong>Save</strong> or <strong>Download</strong></div>
-        </div>
-        <div class="step">
-          <div class="step-dot">3</div>
-          <div class="step-text">Photo saves to your <strong>Downloads</strong> folder or <strong>Gallery</strong> depending on your phone</div>
-        </div>
-      </div>
-      <div class="alert alert-green" style="margin-top:0;">
-        💡 Each photo has a <strong>timestamp label</strong> so they're easy to find and identify later.
-      </div>
-    </div>
-
-    <!-- Card 3: Emailing results -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-num android-num">3</div>
-        <div class="card-title">Finding &amp; Emailing Your Results</div>
-      </div>
-      <div class="steps">
-        <div class="step">
-          <div class="step-dot">1</div>
-          <div class="step-text">Open your <strong>Gallery</strong> app and check <strong>Recents</strong> or <strong>Downloads</strong> album — or open <strong>Files → Downloads</strong></div>
-        </div>
-        <div class="step">
-          <div class="step-dot">2</div>
-          <div class="step-text">The app will open your email app pre-filled with the correct address and subject line — <strong>don't change those</strong></div>
-        </div>
-        <div class="step">
-          <div class="step-dot">3</div>
-          <div class="step-text">In the <strong>body of the email</strong>, type your location first <em>(example: Troy Hill School, Morris County)</em></div>
-        </div>
-        <div class="step">
-          <div class="step-dot">4</div>
-          <div class="step-text">After typing your location, tap the <strong>paperclip icon</strong> in the toolbar above your keyboard</div>
-        </div>
-        <div class="step">
-          <div class="step-dot">5</div>
-          <div class="step-text">Navigate to <strong>Downloads</strong> or <strong>Gallery</strong> and select your E-Zone photos</div>
-        </div>
-        <div class="step">
-          <div class="step-dot">6</div>
-          <div class="step-text">Hit <strong>Send</strong> ✓</div>
-        </div>
-      </div>
-      <div class="alert alert-red" style="margin-top:0;">
-        📍 <strong>Always type your location in the email body first</strong> — before attaching anything. This is how we know where each incident happened.
-      </div>
-    </div>
-
-  </div><!-- /android panel -->
-
-  <div class="footer">
-    <p>E-Zone · Independent Civic Technology<br/>© 2026 William McKenna · All Rights Reserved</p>
-    <div style="margin-top:12px;display:flex;justify-content:center;gap:8px;">
-      <span style="color:#dc2626;">★</span><span style="color:white;">★</span><span style="color:#1d4ed8;">★</span><span style="color:#dc2626;">★</span><span style="color:white;">★</span>
-    </div>
-  </div>
-
-</div><!-- /content -->
-
-<script>
-function switchTab(device) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelector('.tab.' + device).classList.add('active');
-  document.getElementById('panel-' + device).classList.add('active');
-}
-</script>
-</body>
+    <script>
+      function switchTab(device) {
+        document.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach((p) => p.classList.remove('active'));
+        document.querySelector('.tab.' + device).classList.add('active');
+        document.getElementById('panel-' + device).classList.add('active');
+      }
+    </script>
+  </body>
 </html>
