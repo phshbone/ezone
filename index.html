@@ -1622,17 +1622,36 @@
         const cx = center.x, cy = center.y;
         const ns = 'http://www.w3.org/2000/svg';
 
-        // Both halves belong to the same measured zone; shading only shows orientation.
-        // Show the final orientation live while dragging so the divider can be used as an aiming guide.
-        const dividerAngle = ((openingAngleDeg + 90) * Math.PI) / 180;
-        const dx = r * Math.cos(dividerAngle);
-        const dy = r * Math.sin(dividerAngle);
-        const showOrientedHalves = STATE.arcLocked || STATE.dragging;
-        if (showOrientedHalves) {
-          for (const [half, sweep, opacity] of [['front', 0, 0.33], ['rear', 1, 0.18]]) {
+        // The full 360-degree circle remains the measured zone. This experiment only changes
+        // visual emphasis: 270 degrees are darker, while a 90-degree rear window stays faint.
+        // The faint window is centered opposite the drag/opening direction.
+        const showOrientedSectors = STATE.arcLocked || STATE.dragging;
+        const sectorPoint = (angleDeg) => {
+          const angle = (angleDeg * Math.PI) / 180;
+          return {
+            x: cx + r * Math.cos(angle),
+            y: cy + r * Math.sin(angle),
+          };
+        };
+        const rearWindowStartDeg = openingAngleDeg + 135;
+        const rearWindowEndDeg = openingAngleDeg + 225;
+
+        if (showOrientedSectors) {
+          const emphasizedStart = sectorPoint(rearWindowEndDeg);
+          const emphasizedEnd = sectorPoint(rearWindowStartDeg);
+          const deemphasizedStart = sectorPoint(rearWindowStartDeg);
+          const deemphasizedEnd = sectorPoint(rearWindowEndDeg);
+
+          for (const [name, startPoint, endPoint, largeArc, opacity] of [
+            ['emphasized', emphasizedStart, emphasizedEnd, 1, 0.33],
+            ['deemphasized', deemphasizedStart, deemphasizedEnd, 0, 0.09],
+          ]) {
             const fill = document.createElementNS(ns, 'path');
-            fill.setAttribute('data-zone-half', half);
-            fill.setAttribute('d', `M${cx + dx},${cy + dy} A${r},${r} 0 0 ${sweep} ${cx - dx},${cy - dy} Z`);
+            fill.setAttribute('data-zone-sector', name);
+            fill.setAttribute(
+              'd',
+              `M${cx},${cy} L${startPoint.x},${startPoint.y} A${r},${r} 0 ${largeArc} 1 ${endPoint.x},${endPoint.y} Z`,
+            );
             fill.setAttribute('fill', `rgba(220,38,38,${opacity})`);
             fill.setAttribute('stroke', 'none');
             svg.appendChild(fill);
@@ -1645,22 +1664,28 @@
         circle.setAttribute('cx', cx);
         circle.setAttribute('cy', cy);
         circle.setAttribute('r', r);
-        circle.setAttribute('fill', showOrientedHalves ? 'none' : 'rgba(220,38,38,0.18)');
+        circle.setAttribute('fill', showOrientedSectors ? 'none' : 'rgba(220,38,38,0.18)');
         circle.setAttribute('stroke', STATE.nearBoundary ? 'rgba(220,38,38,0.9)' : 'rgba(180,20,20,0.45)');
         circle.setAttribute('stroke-width', STATE.arcLocked ? '2.5' : '2');
         if (!STATE.arcLocked) circle.setAttribute('stroke-dasharray', '6 3');
         svg.appendChild(circle);
 
-        // Visual reference only: reuse the drag direction, with a perpendicular diameter.
-        const divider = document.createElementNS(ns, 'line');
-        divider.setAttribute('data-zone-divider', '');
-        divider.setAttribute('x1', cx - dx);
-        divider.setAttribute('y1', cy - dy);
-        divider.setAttribute('x2', cx + dx);
-        divider.setAttribute('y2', cy + dy);
-        divider.setAttribute('stroke', 'rgba(180,20,20,0.18)');
-        divider.setAttribute('stroke-width', '1');
-        svg.appendChild(divider);
+        // Faint radial separators define only the edges of the 90-degree rear window.
+        for (const [edge, angleDeg] of [
+          ['start', rearWindowStartDeg],
+          ['end', rearWindowEndDeg],
+        ]) {
+          const point = sectorPoint(angleDeg);
+          const divider = document.createElementNS(ns, 'line');
+          divider.setAttribute('data-zone-divider', edge);
+          divider.setAttribute('x1', cx);
+          divider.setAttribute('y1', cy);
+          divider.setAttribute('x2', point.x);
+          divider.setAttribute('y2', point.y);
+          divider.setAttribute('stroke', 'rgba(180,20,20,0.18)');
+          divider.setAttribute('stroke-width', '1');
+          svg.appendChild(divider);
+        }
 
         // Restore the original temporary direction guide only during outward creation.
         if (!STATE.arcLocked && STATE.dragging) {
